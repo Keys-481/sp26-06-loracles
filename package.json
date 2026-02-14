@@ -1,0 +1,27 @@
+{
+  "name": "sp26-06-loracles",
+  "version": "1.0.0",
+  "description": "A helpful image document parser.",
+  "homepage": "https://github.com/Keys-481/sp26-06-loracles#readme",
+  "bugs": {
+    "url": "https://github.com/Keys-481/sp26-06-loracles/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Keys-481/sp26-06-loracles.git"
+  },
+  "license": "",
+  "author": "loracles",
+  "type": "commonjs",
+  "main": "main.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^40.4.1"
+  }
+}
