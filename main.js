@@ -1,5 +1,9 @@
 const {app, BrowserWindow} = require('electron/main')
 
+/* The following line adds the program to the program list and 
+ * creates a desktop shortcut when the installer is run */
+if (require('electron-squirrel-startup')) return;
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
