@@ -1,5 +1,5 @@
-const {FusesPlugin} = require('@electron-forge/plugin-fuses');
-const {FuseV1Options, FuseVersion} = require('@electron/fuses');
+const { FusesPlugin } = require('@electron-forge/plugin-fuses');
+const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
@@ -25,6 +25,10 @@ module.exports = {
     },
   ],
   plugins: [
+    {
+      name: '@electron-forge/plugin-auto-unpack-natives',
+      config: {},
+    },
     {
       name: '@electron-forge/plugin-vite',
       config: {
