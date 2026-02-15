@@ -13,7 +13,7 @@
   "license": "",
   "author": "loracles",
   "type": "commonjs",
-  "main": "main.js",
+  "main": ".vite/build/main.js",
   "directories": {
     "doc": "docs"
   },
@@ -31,10 +31,15 @@
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
     "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron-forge/plugin-vite": "^7.11.1",
     "@electron/fuses": "^1.8.0",
-    "electron": "^40.4.1"
+    "@vitejs/plugin-react": "^5.1.4",
+    "electron": "^40.4.1",
+    "vite": "^5.4.21"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }
