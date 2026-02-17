@@ -55,5 +55,11 @@ export default defineConfig([
       // No unnecessary semicolons
       "@stylistic/no-extra-semi": "error"
     }
-  }
+  },
+  {
+    files: ["**/*.css"],
+    plugins: { css },
+    language: "css/css",
+    extends: ["css/recommended"]
+  },
 ]);
