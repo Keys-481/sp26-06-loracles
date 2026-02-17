@@ -20,6 +20,7 @@
   "scripts": {
     "start": "electron-forge start",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage.enabled --coverage.thresholds.functions=80",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "lint": "eslint --no-warn-ignored src/** test/**"
