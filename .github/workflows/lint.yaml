@@ -30,6 +30,10 @@ jobs:
       - name: Install Node.js dependencies
         run: npm install
 
+      # Stops this from erroring when there are no changes
+      - name: Revert changes into the package-lock.json file
+        run: git checkout -- package-lock.json
+
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
