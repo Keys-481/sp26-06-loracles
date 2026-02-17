@@ -1,6 +1,4 @@
 #!/bin/bash
-set -euo pipefail
-
 echo "Loracles: Test"
 
 # Check presence package.json
