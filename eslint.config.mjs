@@ -34,7 +34,7 @@ export default defineConfig([
       "@stylistic/semi": "error",
       // No unnecessary semicolons
       "@stylistic/no-extra-semi": "error",
-      
+
       "react/jsx-uses-react": "error",
       "react/jsx-uses-vars": "error",
     }
