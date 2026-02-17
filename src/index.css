@@ -18,6 +18,7 @@ body {
 .div1 {
   grid-column: span 3 / span 3;
   border-color: black;
+  border-radius: 2;
   border-style: solid;
 }
 
