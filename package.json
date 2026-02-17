@@ -21,7 +21,8 @@
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "lint": "electron-forge lint"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
@@ -33,8 +34,14 @@
     "@electron-forge/plugin-fuses": "^7.11.1",
     "@electron-forge/plugin-vite": "^7.11.1",
     "@electron/fuses": "^1.8.0",
+    "@eslint/css": "^0.14.1",
+    "@eslint/js": "^9",
+    "@stylistic/eslint-plugin": "^5.8.0",
     "@vitejs/plugin-react": "^5.1.4",
     "electron": "^40.4.1",
+    "eslint": "^9.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.3.0",
     "vite": "^5.4.21"
   },
   "dependencies": {
