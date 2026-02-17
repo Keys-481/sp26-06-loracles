@@ -6,14 +6,14 @@ import { defineConfig } from "eslint/config";
 import stylistic from "@stylistic/eslint-plugin";
 
 export default defineConfig([
-  { 
-    files: ["**/*.{mjs,cjs,jsx}"], 
-    plugins: { 
+  {
+    files: ["**/*.{mjs,cjs,jsx}"],
+    plugins: {
       react,
       js,
       "@stylistic": stylistic
-    }, 
-    extends: ["js/recommended"], 
+    },
+    extends: ["js/recommended"],
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {
@@ -22,7 +22,7 @@ export default defineConfig([
       },
       globals: {
         ...globals.browser
-      },    
+      },
     },
     rules: {
       // Force 2 spaces for indents
@@ -31,24 +31,21 @@ export default defineConfig([
       "react/jsx-uses-vars": "error",
     }
   },
-  { 
-    files: ["**/*.js"], 
+  {
+    files: ["**/*.js"],
     plugins: {
       js,
       "@stylistic": stylistic
-    }, 
-    languageOptions: { 
-      sourceType: "commonjs" 
     },
     rules: {
       // Force 2 spaces for indents
       "@stylistic/indent": ['error', 2]
     }
   },
-  { 
-    files: ["**/*.css"], 
-    plugins: { css }, 
-    language: "css/css", 
-    extends: ["css/recommended"] 
+  {
+    files: ["**/*.css"],
+    plugins: { css },
+    language: "css/css",
+    extends: ["css/recommended"]
   },
 ]);
