@@ -34,3 +34,4 @@ jobs:
         uses: wearerequired/lint-action@v2
         with:
           eslint: true
+          eslint_auto_fix: true
