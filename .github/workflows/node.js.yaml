@@ -10,7 +10,25 @@ on:
 
 jobs:
   build:
-    runs-on: [windows-latest, macos-latest]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [24.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: npm install
+      run: npm install
+    - name: build.sh
+      shell: bash
+      run: bash build.sh
+  build-mac:
+    runs-on: macos-latest
     strategy:
       matrix:
         node-version: [24.x]
@@ -28,7 +46,25 @@ jobs:
       shell: bash
       run: bash build.sh
   tests:
-    runs-on: [ windows-latest, macos-latest ]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [24.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: npm install
+      run: npm install
+    - name: test.sh
+      shell: bash
+      run: bash test.sh
+  tests-mac:
+    runs-on: macos-latest
     strategy:
       matrix:
         node-version: [24.x]
@@ -46,7 +82,24 @@ jobs:
       shell: bash
       run: bash test.sh
   coverage:
-    runs-on: [ windows-latest, macos-latest ]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [24.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: npm install
+      run: npm install
+    - name: testing coverage
+      run: npm run test:coverage
+  coverage-mac:
+    runs-on: macos-latest
     strategy:
       matrix:
         node-version: [24.x]
