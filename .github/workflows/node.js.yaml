@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: [windows-latest, macos-latest]
     strategy:
       matrix:
         node-version: [24.x]
@@ -28,7 +28,7 @@ jobs:
       shell: bash
       run: bash build.sh
   tests:
-    runs-on: windows-latest
+    runs-on: [ windows-latest, macos-latest ]
     strategy:
       matrix:
         node-version: [24.x]
@@ -46,7 +46,7 @@ jobs:
       shell: bash
       run: bash test.sh
   coverage:
-    runs-on: windows-latest
+    runs-on: [ windows-latest, macos-latest ]
     strategy:
       matrix:
         node-version: [24.x]
