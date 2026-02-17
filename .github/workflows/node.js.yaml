@@ -22,8 +22,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: CI
-      run: npm ci
+    - name: npm install
+      run: npm install
     - name: build.sh
       shell: bash
       run: bash build.sh
@@ -40,6 +40,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - name: npm install
+      run: npm install
     - name: test.sh
       shell: bash
       run: bash test.sh
@@ -56,5 +58,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - name: npm install
+      run: npm install
     - name: testing coverage
       run: npm run test:coverage
