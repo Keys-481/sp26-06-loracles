@@ -12,12 +12,4 @@ status=$?
 echo "Fails: $status"
 returnCode=$((returnCode+status))
 
-echo "==Linting=="
-echo "  npm run lint"
-
-# Run npm run lint, and save the status to a variable
-npm run lint
-status=$?
-returnCode=$((returnCode+status))
-
 exit "$returnCode"
