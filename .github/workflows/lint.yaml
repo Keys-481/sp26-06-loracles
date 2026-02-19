@@ -1,0 +1,42 @@
+name: Linting
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but not for the main branch
+  push:
+    branches-ignore:
+      - main
+
+# Down scope as necessary via https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+permissions:
+  checks: write
+  contents: write
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 24
+
+      # ESLint must be in `package.json`
+      - name: Install Node.js dependencies
+        run: npm install
+
+      # Stops this from erroring when there are no changes
+      - name: Revert changes into the package-lock.json file
+        run: git checkout -- package-lock.json
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          auto_fix: true
+          eslint: true
+          eslint_auto_fix: true

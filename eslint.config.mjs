@@ -27,6 +27,14 @@ export default defineConfig([
     rules: {
       // Force 2 spaces for indents
       "@stylistic/indent": ["error", 2],
+      "@stylistic/indent-binary-ops": ["error", 2],
+      // Prevent lines from ending with a space
+      "@stylistic/no-trailing-spaces": "error",
+      // Require semicolons
+      "@stylistic/semi": "error",
+      // No unnecessary semicolons
+      "@stylistic/no-extra-semi": "error",
+
       "react/jsx-uses-react": "error",
       "react/jsx-uses-vars": "error",
     }
@@ -39,7 +47,13 @@ export default defineConfig([
     },
     rules: {
       // Force 2 spaces for indents
-      "@stylistic/indent": ['error', 2]
+      "@stylistic/indent": ["error", 2],
+      // Prevent lines from ending with a space
+      "@stylistic/no-trailing-spaces": "error",
+      // Require semicolons
+      "@stylistic/semi": "error",
+      // No unnecessary semicolons
+      "@stylistic/no-extra-semi": "error"
     }
   },
   {
@@ -47,5 +61,5 @@ export default defineConfig([
     plugins: { css },
     language: "css/css",
     extends: ["css/recommended"]
-  },
+  }
 ]);
