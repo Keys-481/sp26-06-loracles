@@ -8,8 +8,24 @@ function App() {
 
       <div class="parent">
         <div class="div1">
-          <p>Box 1</p>
-          <p>Misc. Settings</p>
+          <div class="buttonRow">
+            <button type="button" class="button">
+              <img src="/src/assets/file.png" alt="Icon" class="icon"></img>
+              <span>File Select</span>
+            </button>
+            <button type="button" class="button">
+              <img src="/src/assets/folder.png" alt="Icon" class="icon"></img>
+              <span>Folder Select</span>
+            </button>
+            <button type="button" class="button">
+              <img src="/src/assets/settings.png" alt="Icon" class="icon"></img>
+              <span>Settings</span>
+            </button>
+            <button type="button" class="button">
+              <img src="/src/assets/world.png" alt="Icon" class="icon"></img>
+              <span>Language</span>
+            </button>
+          </div>
         </div>
         <div class="div2">
           <p>Box 2</p>
