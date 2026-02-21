@@ -7,11 +7,9 @@ body {
 
 .parent {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
   gap: 0px;
   border-style: solid;
-  width: 95%;
+  width: 99%;
   height: 95vh;
 }
 
