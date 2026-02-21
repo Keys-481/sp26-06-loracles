@@ -7,18 +7,15 @@ body {
 
 .parent {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
   gap: 0px;
   border-style: solid;
-  width: 95%;
+  width: 99%;
   height: 95vh;
 }
-    
+
 .div1 {
   grid-column: span 3 / span 3;
   border-color: black;
-  border-radius: 2;
   border-style: solid;
 }
 
@@ -47,4 +44,24 @@ body {
   grid-row-start: 3;
   border-color: black;
   border-style: solid;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-start;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  width: min-content;
+  row-gap: 3px;
+  column-gap: 3px;
+}
+
+.icon {
+  width: 40px;
+  display: inline-block;
 }
