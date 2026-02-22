@@ -2,6 +2,17 @@
 .idea/
 .vscode/
 
+# Models directory
+src/inference/models
+
+# Python
+__pycache__
+
+# UV
+.python-version
+pyproject.toml
+uv.lock
+
 # Logs
 logs
 *.log
