@@ -2,9 +2,6 @@
 .idea/
 .vscode/
 
-# Models directory
-src/inference/models
-
 # Python
 __pycache__
 
