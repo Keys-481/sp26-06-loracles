@@ -1,4 +1,4 @@
-import {app, BrowserWindow} from 'electron';
+import {app, BrowserWindow, ipcMain, dialog} from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
@@ -14,6 +14,7 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true
     },
   });
 
@@ -27,6 +28,19 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
+
+// Handle IPC request to select images
+ipcMain.handle('select-images', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile', 'multiSelections'],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'tiff'] }
+    ]
+  });
+
+  // Return selected file paths (undefined if canceled)
+  return result.canceled ? null : result.filePaths;
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
