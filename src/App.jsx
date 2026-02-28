@@ -47,8 +47,4 @@ function App() {
   );
 }
 
-function imageURL(url) {
-  return 
-}
-
 export default App;
