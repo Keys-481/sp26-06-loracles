@@ -12,7 +12,7 @@ function App() {
         <div class="div1">
           <div class="buttonRow">
             <button type="button" class="button">
-              <img src={img_file} id="buttonFile" alt="Icon" class="icon"></img>
+              <img src={img_file} alt="Icon" class="icon"></img>
               <span>File Select</span>
             </button>
             <button type="button" class="button">
@@ -45,6 +45,10 @@ function App() {
 
     </div>
   );
+}
+
+function imageURL(url) {
+  return 
 }
 
 export default App;
