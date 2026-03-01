@@ -1,8 +1,10 @@
-import numpy as np
 from abc import ABC, abstractmethod
 from typing import Dict, List
+
+import numpy as np
 from torch.cuda import is_available
-from src.inference.interface.utils import LineSegmentationOutput
+
+from .utils import LineSegmentationOutput
 
 
 class BaseModel(ABC):
