@@ -18,16 +18,15 @@ function OutputTextBox({ labelText, placeholder="" }) {
 
   return(
     <div id="outputTextBox">
-      <div>
-        <label for="outputTextBox_textarea">{labelText}</label>
-        <textarea id="outputTextBox_textarea"
-          autoCapitalize="off"
-          autoComplete="off"
-          spellCheck="false"
-          placeholder={placeholder} // Text to display when textarea is empty
-        >
-        </textarea>
-      </div>
+      <label for="outputTextBox_textarea">{labelText}</label>
+      <br/>
+      <textarea id="outputTextBox_textarea"
+        autoCapitalize="off"
+        autoComplete="off"
+        spellCheck="false"
+        placeholder={placeholder} // Text to display when textarea is empty
+      >
+      </textarea>
     </div>
   );
 }
