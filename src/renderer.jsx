@@ -33,29 +33,29 @@ import App from './App';
 
 const root = createRoot(document.getElementById('root'));
 
-document.getElementById('selectImagesButton').addEventListener('click', async () => {  
-  try {  
-    const imagePaths = await window.electronAPI.selectImages();  
- 
-    if (!imagePaths || imagePaths.length === 0) {  
-      alert('No images selected.');  
+document.getElementById('selectImagesButton').addEventListener('click', async () => {
+  try {
+    const imagePaths = await window.electronAPI.selectImages();
+
+    if (!imagePaths || imagePaths.length === 0) {
+      alert('No images selected.');
       return;
-    }  
- 
-    // const imageContainer = document.getElementById('imageContainer');  
-    // imageContainer.innerHTML = '';  // Clear previous images  
- 
-    // Loop through paths and create <img> elements  
-    imagePaths.forEach(path => {  
-      const img = document.createElement('img');  
-      img.src = pathToFileURL(path).href;  // Convert path to file:// URL  
-      img.alt = `Image from ${path}`;  
-      //imageContainer.appendChild(img);  
-    });  
-  } catch (error) {  
-    console.error('Error selecting images:', error);  
-    alert('Failed to select images.');  
-  }  
+    }
+
+    // const imageContainer = document.getElementById('imageContainer');
+    // imageContainer.innerHTML = '';  // Clear previous images
+
+    // Loop through paths and create <img> elements
+    imagePaths.forEach(path => {
+      const img = document.createElement('img');
+      img.src = pathToFileURL(path).href;  // Convert path to file:// URL
+      img.alt = `Image from ${path}`;
+      //imageContainer.appendChild(img);
+    });
+  } catch (error) {
+    console.error('Error selecting images:', error);
+    alert('Failed to select images.');
+  }
 });
 
 root.render(<App />);

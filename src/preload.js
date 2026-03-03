@@ -5,5 +5,5 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
-    selectImages: () => ipcRenderer.invoke('select-images') // Invoke main process handler
+  selectImages: () => ipcRenderer.invoke('select-images') // Invoke main process handler
 });

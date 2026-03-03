@@ -48,7 +48,7 @@ function App() {
           <p>Box 4</p>
           <p>Text Display</p>
         </div>
-        
+
       </div>
 
     </div>
