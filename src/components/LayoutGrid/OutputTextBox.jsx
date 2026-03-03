@@ -20,12 +20,10 @@ function OutputTextBox({ labelText, placeholder="" }) {
     <div id="outputTextBox">
       <div>
         <label for="outputTextBox_textarea">{labelText}</label>
-      </div>
-      <div>
         <textarea id="outputTextBox_textarea"
-          autocapitalize="off"
-          autocomplete="off"
-          spellcheck="false"
+          autoCapitalize="off"
+          autoComplete="off"
+          spellCheck="false"
           placeholder={placeholder} // Text to display when textarea is empty
         >
         </textarea>
