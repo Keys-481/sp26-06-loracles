@@ -4,29 +4,29 @@ function App() {
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
 
-      <div class="parent">
+      <div className="parent">
 
-        <div class="div1">
+        <div className="div1">
 
-          <div class="buttonRow">
+          <div className="buttonRow">
 
-            <button id="selectImagesButton" type="button" class="button">
-              <img src="/src/assets/file.png" alt="Icon" class="icon"></img>
+            <button id="selectImagesButton" type="button" className="button">
+              <img src="/src/assets/file.png" alt="Icon" className="icon"></img>
               <span>File Select</span>
             </button>
 
-            <button type="button" class="button">
-              <img src="/src/assets/folder.png" alt="Icon" class="icon"></img>
+            <button type="button" className="button">
+              <img src="/src/assets/folder.png" alt="Icon" className="icon"></img>
               <span>Folder Select</span>
             </button>
 
-            <button type="button" class="button">
-              <img src="/src/assets/settings.png" alt="Icon" class="icon"></img>
+            <button type="button" className="button">
+              <img src="/src/assets/settings.png" alt="Icon" className="icon"></img>
               <span>Settings</span>
             </button>
 
-            <button type="button" class="button">
-              <img src="/src/assets/world.png" alt="Icon" class="icon"></img>
+            <button type="button" className="button">
+              <img src="/src/assets/world.png" alt="Icon" className="icon"></img>
               <span>Language</span>
             </button>
 
@@ -34,17 +34,17 @@ function App() {
 
         </div>
 
-        <div class="div2">
+        <div className="div2">
           <p>Box 2</p>
           <p>Document Display</p>
         </div>
 
-        <div class="div3">
+        <div className="div3">
           <p>Box 3</p>
           <p>Scanning controls</p>
         </div>
 
-        <div class="div4">
+        <div className="div4">
           <p>Box 4</p>
           <p>Text Display</p>
         </div>
