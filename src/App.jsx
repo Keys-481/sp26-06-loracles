@@ -9,11 +9,10 @@ function App() {
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
-
       <div class="parent">
         <div class="div1">
           <div class="buttonRow">
-            <button type="button" class="button">
+            <button type="button" class="button" onClick={() => {window.electronAPI.openImage();}}>
               <img src={img_file} alt="Icon" class="icon"></img>
               <span>File Select</span>
             </button>
@@ -31,11 +30,12 @@ function App() {
             </button>
           </div>
         </div>
-        <div class="div2">
+        <div className="div2">
           <p>Box 2</p>
           <p>Document Display</p>
+          <img id="documentDisplay" />
         </div>
-        <div class="div3">
+        <div className="div3">
           <p>Box 3</p>
           <p>Scanning controls</p>
         </div>
@@ -43,7 +43,6 @@ function App() {
           <OutputTextBox labelText={"Output goes here"}/>
         </div>
       </div>
-
     </div>
   );
 }
