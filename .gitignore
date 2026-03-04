@@ -2,6 +2,14 @@
 .idea/
 .vscode/
 
+# Python
+__pycache__
+
+# UV
+.python-version
+pyproject.toml
+uv.lock
+
 # Logs
 logs
 *.log
