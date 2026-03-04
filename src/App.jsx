@@ -7,7 +7,6 @@ function App() {
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
-
       <div class="parent">
         <div class="div1">
           <div class="buttonRow">
@@ -27,29 +26,22 @@ function App() {
               <img src={img_world} alt="Icon" class="icon"></img>
               <span>Language</span>
             </button>
-
           </div>
-
         </div>
-
         <div className="div2">
           <p>Box 2</p>
           <p>Document Display</p>
           <img id="documentDisplay" />
         </div>
-
         <div className="div3">
           <p>Box 3</p>
           <p>Scanning controls</p>
         </div>
-
         <div className="div4">
           <p>Box 4</p>
           <p>Text Display</p>
         </div>
-
       </div>
-
     </div>
   );
 }
