@@ -82,9 +82,3 @@ class ModelRouter:
                 models[dir_name] = model_cls
 
         return models
-
-
-if __name__ == "__main__":
-    models_dir = Path("src/inference/models/")
-    model_router = ModelRouter(models_dir)
-    print(model_router.models)
