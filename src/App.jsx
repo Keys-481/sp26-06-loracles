@@ -3,6 +3,8 @@ import img_folder from "./assets/folder.png";
 import img_settings from "./assets/settings.png";
 import img_world from "./assets/world.png";
 
+import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
+
 function App() {
 
   return (
@@ -37,9 +39,8 @@ function App() {
           <p>Box 3</p>
           <p>Scanning controls</p>
         </div>
-        <div className="div4">
-          <p>Box 4</p>
-          <p>Text Display</p>
+        <div class="div4">
+          <OutputTextBox labelText={"Output goes here"}/>
         </div>
       </div>
     </div>
