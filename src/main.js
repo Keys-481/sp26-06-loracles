@@ -1,5 +1,6 @@
 import {app, BrowserWindow, ipcMain, dialog} from 'electron';
 import path from 'node:path';
+import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -14,7 +15,7 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true
+      contextIsolation: true,
     },
   });
 
@@ -30,16 +31,16 @@ const createWindow = () => {
 };
 
 // Handle IPC request to select images
-ipcMain.handle('select-images', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile', 'multiSelections'],
-    filters: [
-      { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'tiff'] }
-    ]
+ipcMain.on("chooseFile", (event, arg) => {
+  const result = dialog.showOpenDialog({
+    properties: ["openFile"],
+    filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff'] }]
   });
 
-  // Return selected file paths (undefined if canceled)
-  return result.canceled ? null : result.filePaths;
+  result.then(({canceled, filePaths, bookmarks}) => {
+    const base64 = fs.readFileSync(filePaths[0]).toString('base64');
+    event.reply("chosenFile", base64);
+  });
 });
 
 // This method will be called when Electron has finished

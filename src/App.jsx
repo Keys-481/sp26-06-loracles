@@ -10,7 +10,7 @@ function App() {
 
           <div className="buttonRow">
 
-            <button id="selectImagesButton" type="button" className="button">
+            <button id="selectImagesButton" type="button" className="button" onClick={() => {window.electronAPI.openImage();}} >
               <img src="/src/assets/file.png" alt="Icon" className="icon"></img>
               <span>File Select</span>
             </button>
@@ -37,6 +37,7 @@ function App() {
         <div className="div2">
           <p>Box 2</p>
           <p>Document Display</p>
+          <img id="documentDisplay" />
         </div>
 
         <div className="div3">

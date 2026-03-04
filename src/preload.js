@@ -5,5 +5,10 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
-  selectImages: () => ipcRenderer.invoke('select-images') // Invoke main process handler
+  openImage: () => ipcRenderer.send('chooseFile'),
+  // Load the image and fill the documentDisplay
+  opened: ipcRenderer.on('chosenFile', (event, base64) => {
+    document.getElementById("documentDisplay").src = `data:image/jpg;base64,${base64}`;
+  }),
+  selectImages: () => ipcRenderer.invoke('chooseFile') // Invoke main process handler
 });
