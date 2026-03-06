@@ -37,7 +37,7 @@ function App() {
           <img id="documentDisplay" />
         </div>
         <div className="div3">
-          <ScanControlBox />
+          <ScanControlBox scanState={false}/>
         </div>
         <div class="div4">
           <OutputTextBox labelText={"Output goes here"}/>
