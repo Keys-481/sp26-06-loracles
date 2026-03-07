@@ -17,31 +17,31 @@ function ScanControls() {
       <p>
         <label for="language">Document language:</label>
         <select name="language" id="language">
-        <option value="Belarusian">Belarusian</option>
-        <option value="Bulgarian">Bulgarian</option>
-        <option value="Russian">Russian</option>
-        <option value="Ukrainian">Ukrainian</option>
-        <option value="Unknown">Unknown</option>
+          <option value="Belarusian">Belarusian</option>
+          <option value="Bulgarian">Bulgarian</option>
+          <option value="Russian">Russian</option>
+          <option value="Ukrainian">Ukrainian</option>
+          <option value="Unknown">Unknown</option>
         </select>
       </p>
       <p>
         <label for="columns">Number of Columns:</label>
         <select name="columns" id="columns">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
         </select>
       </p>
       <p>
         <label for="columns">Additional Parameters:</label>
         <select name="params" id="params">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
         </select>
       </p>
     </div>
-  )
+  );
 }
 
 export default ScanControls;
