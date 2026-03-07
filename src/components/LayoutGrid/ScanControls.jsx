@@ -2,7 +2,7 @@
 /**
  * React component for scan input controls. This will allow the user to adjust any
  * default values to instruct the model what to look for.
- * 
+ *
  * TODO - Create parameters to auto-fill/select what the default detected values are.
  * TODO - fix syling import
  */
