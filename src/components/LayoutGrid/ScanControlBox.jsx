@@ -2,8 +2,12 @@
  * React compoenent for the scanning controls of the UI.
  *
  * This will be where the model parameters and big scan button are placed.
+ *
+ * @param {Object} param0 Container for component props
+ * @param {*} param0.scanState The current state of the scanner
+ * @param {*} param0.onRunInferenceButton Function to run when "Run Inference" button is clicked
  */
-function ScanControlBox({ scanState }) {
+function ScanControlBox({ scanState, onRunInferenceButton }) {
   return (
     <div id="scanControlBox">
       <div id="modelParamBox">
@@ -13,10 +17,9 @@ function ScanControlBox({ scanState }) {
         <button
           id="runInferenceButton"
           class="button"
-          disabled={scanState}
-          onClick={() => { setScanState(!scanState); }}
+          onClick={onRunInferenceButton}
         >
-          { scanState ? 'Scanning' : 'Run Inference' }
+          { scanState ? 'Scanned' : 'Run Inference' }
         </button>
       </div>
     </div>

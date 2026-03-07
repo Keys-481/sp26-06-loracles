@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import img_file from "./assets/file.png";
 import img_folder from "./assets/folder.png";
 import img_settings from "./assets/settings.png";
@@ -7,6 +9,7 @@ import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
 function App() {
+  const [scanState, setScanState] = useState(false);
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
@@ -37,10 +40,16 @@ function App() {
           <img id="documentDisplay" />
         </div>
         <div className="div3">
-          <ScanControlBox scanState={false}/>
+          <ScanControlBox
+            scanState={scanState}
+            onRunInferenceButton={() => setScanState(true)}
+          />
         </div>
         <div class="div4">
-          <OutputTextBox labelText={"Output goes here"}/>
+          <OutputTextBox
+            labelText={"Output goes here"}
+            scannedText={scanState ? 'this is scanned text' : ''}
+          />
         </div>
       </div>
     </div>
