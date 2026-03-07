@@ -10,9 +10,6 @@
 function ScanControlBox({ scanState, onRunInferenceButton }) {
   return (
     <div id="scanControlBox">
-      <div id="modelParamBox">
-        Add Model Param options here
-      </div>
       <div id="runInferenceButtonBox">
         <button
           id="runInferenceButton"
