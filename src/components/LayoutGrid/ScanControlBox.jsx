@@ -1,3 +1,5 @@
+import ScanControls from "./ScanControls";
+
 /**
  * React compoenent for the scanning controls of the UI.
  *
@@ -10,6 +12,7 @@
 function ScanControlBox({ scanState, onRunInferenceButton }) {
   return (
     <div id="scanControlBox">
+      <ScanControls/>
       <div id="runInferenceButtonBox">
         <button
           id="runInferenceButton"

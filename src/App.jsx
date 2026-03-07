@@ -7,7 +7,6 @@ import img_world from "./assets/world.png";
 
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
-import ScanControls from "./components/LayoutGrid/ScanControls";
 
 function App() {
   const [scanState, setScanState] = useState(false);
@@ -45,7 +44,6 @@ function App() {
             scanState={scanState}
             onRunInferenceButton={() => setScanState(true)}
           />
-          <ScanControls/>
         </div>
         <div class="div4">
           <OutputTextBox
