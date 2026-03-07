@@ -7,6 +7,7 @@ import img_world from "./assets/world.png";
 
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
+import ScanControls from "./components/LayoutGrid/ScanControls";
 
 function App() {
   const [scanState, setScanState] = useState(false);
@@ -37,13 +38,14 @@ function App() {
         <div className="div2">
           <p>Box 2</p>
           <p>Document Display</p>
-          <img id="documentDisplay" />
+          <img id="documentDisplay"/>
         </div>
         <div className="div3">
           <ScanControlBox
             scanState={scanState}
             onRunInferenceButton={() => setScanState(true)}
           />
+          <ScanControls/>
         </div>
         <div class="div4">
           <OutputTextBox
