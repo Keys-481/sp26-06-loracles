@@ -1,5 +1,5 @@
 import pytest
-from src.inference.interface.utils import LineSegmentationOutput, Polygon, PolygonPoint
+from src.inference.interface.utils import LineSegmentationOutput, Polygon, PolygonPoint, TextAnnotation, TextRecognitionOutput
 
 
 class TestPolygonPoint:
@@ -60,3 +60,53 @@ class TestLineSegmentationOutput:
         poly = Polygon(points=[])
         with pytest.raises(TypeError):
             LineSegmentationOutput(polygons=[poly, "bad"])
+
+
+class TestTextAnnotation:
+
+    def test_create(self):
+        poly = Polygon(points=[PolygonPoint(0, 0), PolygonPoint(10, 20)])
+        ann = TextAnnotation(text="hello", polygon=poly)
+        assert ann.text == "hello"
+        assert ann.polygon is poly
+
+    def test_positional_args(self):
+        poly = Polygon(points=[PolygonPoint(1, 2)])
+        ann = TextAnnotation("world", poly)
+        assert ann.text == "world"
+        assert ann.polygon is poly
+
+    def test_is_named_tuple(self):
+        poly = Polygon(points=[])
+        ann = TextAnnotation(text="", polygon=poly)
+        assert isinstance(ann, tuple)
+
+
+class TestTextRecognitionOutput:
+
+    def test_create_empty(self):
+        output = TextRecognitionOutput(annotations=[])
+        assert output.annotations == []
+
+    def test_create_with_annotation(self):
+        poly = Polygon(points=[PolygonPoint(0, 0)])
+        ann = TextAnnotation(text="line", polygon=poly)
+        output = TextRecognitionOutput(annotations=[ann])
+        assert len(output.annotations) == 1
+        assert output.annotations[0] is ann
+
+    def test_create_with_multiple_annotations(self):
+        poly = Polygon(points=[PolygonPoint(0, 0)])
+        anns = [TextAnnotation(text=str(i), polygon=poly) for i in range(3)]
+        output = TextRecognitionOutput(annotations=anns)
+        assert len(output.annotations) == 3
+
+    def test_rejects_non_annotation(self):
+        with pytest.raises(TypeError):
+            TextRecognitionOutput(annotations=["not an annotation"])
+
+    def test_rejects_mixed_list(self):
+        poly = Polygon(points=[])
+        ann = TextAnnotation(text="ok", polygon=poly)
+        with pytest.raises(TypeError):
+            TextRecognitionOutput(annotations=[ann, "bad"])
