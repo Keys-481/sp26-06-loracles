@@ -2,8 +2,8 @@ import inspect
 import numpy as np
 import pytest
 from unittest.mock import patch
-from src.inference.interface.base_models import BaseModel, LineSegmentationModel
-from src.inference.interface.utils import LineSegmentationOutput
+from src.inference.interface.base_models import BaseModel, LineSegmentationModel, HTRModel
+from src.inference.interface.utils import LineSegmentationOutput, TextRecognitionOutput
 
 
 def _make_concrete_base(**overrides):
@@ -107,3 +107,61 @@ class TestLineSegmentationModel:
 
         output = Concrete()(images=[])
         assert isinstance(output, LineSegmentationOutput)
+
+
+class TestHTRModel:
+
+    def test_is_abstract(self):
+        assert inspect.isabstract(HTRModel)
+
+    def test_missing_call_raises(self):
+        Incomplete = type("Incomplete", (HTRModel,), {
+            "name": property(lambda self: "test"),
+            "description": property(lambda self: "desc"),
+            "user_options": property(lambda self: None),
+            "advanced_user_options": property(lambda self: None),
+        })
+        with pytest.raises(TypeError):
+            Incomplete()
+
+    def test_concrete_subclass_instantiates(self):
+        class Concrete(HTRModel):
+            @property
+            def name(self): return "test"
+
+            @property
+            def description(self): return "desc"
+
+            @property
+            def user_options(self): return None
+
+            @property
+            def advanced_user_options(self): return None
+
+            def __call__(self, images, polygons):
+                return []
+
+        model = Concrete()
+        assert isinstance(model, HTRModel)
+        assert isinstance(model, BaseModel)
+
+    def test_concrete_subclass_callable(self):
+        class Concrete(HTRModel):
+            @property
+            def name(self): return "test"
+
+            @property
+            def description(self): return "desc"
+
+            @property
+            def user_options(self): return None
+
+            @property
+            def advanced_user_options(self): return None
+
+            def __call__(self, images, polygons):
+                return [TextRecognitionOutput(annotations=[])]
+
+        output = Concrete()(images=[], polygons=[])
+        assert isinstance(output, list)
+        assert isinstance(output[0], TextRecognitionOutput)

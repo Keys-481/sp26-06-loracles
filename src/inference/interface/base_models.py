@@ -4,7 +4,7 @@ from typing import Dict, List
 import numpy as np
 from torch.cuda import is_available
 
-from .utils import LineSegmentationOutput
+from .utils import LineSegmentationOutput, TextRecognitionOutput
 
 
 class BaseModel(ABC):
@@ -31,3 +31,8 @@ class BaseModel(ABC):
 class LineSegmentationModel(BaseModel):
     @abstractmethod
     def __call__(self, images: List[np.ndarray]) -> LineSegmentationOutput: pass
+
+
+class HTRModel(BaseModel):
+    @abstractmethod
+    def __call__(self, images: List[np.ndarray], polygons: List[LineSegmentationOutput]) -> List[TextRecognitionOutput]: pass
