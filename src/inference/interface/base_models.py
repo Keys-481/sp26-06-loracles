@@ -30,7 +30,7 @@ class BaseModel(ABC):
 
 class LineSegmentationModel(BaseModel):
     @abstractmethod
-    def __call__(self, images: List[np.ndarray]) -> LineSegmentationOutput: pass
+    def __call__(self, images: List[np.ndarray]) -> List[LineSegmentationOutput]: pass
 
 
 class HTRModel(BaseModel):
