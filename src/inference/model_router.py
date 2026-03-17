@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Tuple, Type
 
-from .interface import BaseModel
+from src.inference.interface import BaseModel
 
 
 class ModelRouter:
