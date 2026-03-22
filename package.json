@@ -55,6 +55,7 @@
     "electron-squirrel-startup": "^1.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "url": "^0.11.4"
+    "url": "^0.11.4",
+    "zeromq": "^6.5.0"
   }
 }
