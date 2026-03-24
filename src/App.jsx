@@ -24,11 +24,11 @@ function App() {
               <img src={img_folder} alt="Icon" class="icon"></img>
               <span>Folder Select</span>
             </button>
-            <button type="button" class="button">
+            <button type="button" class="button" onClick={() => {window.electronAPI.runServ();}}>
               <img src={img_settings} alt="Icon" class="icon"></img>
               <span>Settings</span>
             </button>
-            <button type="button" class="button">
+            <button type="button" class="button" onClick={() => {window.electronAPI.runClie();}}>
               <img src={img_world} alt="Icon" class="icon"></img>
               <span>Language</span>
             </button>

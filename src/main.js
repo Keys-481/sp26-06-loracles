@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 
-import {Request} from "zeromq"
+import * as zmq from "zeromq"
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -45,10 +45,37 @@ ipcMain.on("chooseFile", (event, arg) => {
   });
 });
 
+async function runServer() {
+  const sock = new zmq.Reply();
+
+  await sock.bind('tcp://*:5555');
+
+  for await (const [msg] of sock) {
+    console.log(`Received : [${msg.toString()}]`);
+    await sock.send('World');
+  }
+}
+
+async function runClient() {
+  console.log('Connecting to hello world server...');
+
+  const sock = new zmq.Request();
+  sock.connect('tcp://localhost:5555');
+
+  for (let i = 0; i < 10; i++) {
+    console.log(`Sending Hello ${i}`);
+    await sock.send('Hello');
+    const [result] = await sock.receive();
+    console.log(`Received ${result.toString()} ${i}`);
+  }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  ipcMain.handle("zmq:runClient", runClient);
+  ipcMain.handle("zmq:runServer", runServer);
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the

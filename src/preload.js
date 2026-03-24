@@ -10,5 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   opened: ipcRenderer.on('chosenFile', (event, base64) => {
     document.getElementById("documentDisplay").src = `data:image/jpg;base64,${base64}`;
   }),
-  selectImages: () => ipcRenderer.invoke('chooseFile') // Invoke main process handler
+  selectImages: () => ipcRenderer.invoke('chooseFile'), // Invoke main process handler
+  runServ: () => ipcRenderer.invoke('zmq:runServer'),
+  runClie: () => ipcRenderer.invoke('zmq:runClient')
 });
