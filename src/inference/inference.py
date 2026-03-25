@@ -100,7 +100,6 @@ if __name__ == "__main__":
     parser.add_argument('--models_dir', required=True, type=str, help='Path to model directory')
     parser.add_argument('--port', required=True, type=int, help='Port to bind to')
     args = parser.parse_args()
-    sys.path.append(args.models_dir)
 
     server = InferenceServer(port=args.port, models_dir=args.models_dir)
     # Block until Electron closes the stdin pipe
