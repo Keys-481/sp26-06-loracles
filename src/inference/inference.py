@@ -5,12 +5,11 @@ from pathlib import Path
 from threading import Thread, Event
 from typing import Dict, List
 
-import cv2
 import zmq
 
-from src.inference.interface.utils import TextRecognitionOutput
+from src.inference.interface.base_models import LineSegmentationModel, HTRModel
+from src.inference.interface.utils import to_builtin
 from src.inference.model_router import ModelRouter
-from src.inference.interface.base_models import LineSegmentationModel, HTRModel, BaseModel
 
 
 class InferenceServer:
@@ -25,13 +24,23 @@ class InferenceServer:
         print(f'Router listening on port {port}')
 
         self.is_dead = Event()
-        self._loop = Thread(target=self._loop, daemon=False)
-        self._loop.start()
+        self._loop_thread = Thread(target=self._loop, daemon=False)
+        self._loop_thread.start()
+
+    def shutdown(self):
+        if not self.is_dead.is_set():
+            self.is_dead.set()
+            self.ctx.destroy(linger=0)
+        self._loop_thread.join()
 
     def _loop(self):
         print('Inference loop started')
         while not self.is_dead.is_set():
-            identifier, _, topic, payload = self.router.recv_multipart()
+            try:
+                identifier, _, topic, payload = self.router.recv_multipart()
+            except zmq.ZMQError:
+                # Context was destroyed (e.g. by _heartbeat on parent death).
+                break
             topic = topic.decode()
 
             match topic:
@@ -43,24 +52,22 @@ class InferenceServer:
                 case 'line_seg_use':
                     self.line_seg = self.get_model(model_name=payload.decode(), model_type=LineSegmentationModel)
                 case 'infer':
-                    img = cv2.imread(Path(payload.decode()))
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    if self.htr is None or self.line_seg is None:
+                        raise RuntimeError('HTR or LineSegmentation model not available')
 
-                    polygons = self.line_seg([img])
-                    outputs: List[TextRecognitionOutput] = self.htr(images=[img], polygons=[polygons])
-
-                    rt_val = {}
-                    for output in outputs:
-                        for annotation in output.annotations:
-                            rt_val[annotation.text] = [(int(pnt.x), int(pnt.y)) for pnt in annotation.polygon.points]
-
-                    self.router.send_multipart([identifier, b'', topic.encode(), json.dumps(rt_val).encode()])
+                    img_paths = json.loads(payload.decode())
+                    self.router.send_multipart([
+                        identifier,
+                        b'',
+                        topic.encode(),
+                        json.dumps(self.infer(img_paths)).encode()
+                    ])
                 case 'kill':
-                    self.ctx.destroy()
                     self.is_dead.set()
                 case _:
                     print(f'Got payload {payload} on topic {topic} from {identifier}')
-        self.ctx.destroy()
+        if not self.ctx.closed:
+            self.ctx.destroy()
         print('Inference loop ended')
 
     def query_available_models(self) -> Dict[str, List[str]]:
@@ -74,7 +81,13 @@ class InferenceServer:
                 available_models['LineSegmentation'].append(model)
         return available_models
 
-    def get_model(self, model_name: str, model_type: type[HTRModel] | type[LineSegmentationModel]) -> HTRModel | LineSegmentationModel | None:
+    def infer(self, img_paths: List[str]) -> Dict:
+        polygons = self.line_seg(image_paths=img_paths)
+        outputs = self.htr(image_paths=img_paths, polygons=polygons)
+        return to_builtin(outputs)
+
+    def get_model(self, model_name: str,
+                  model_type: type[HTRModel] | type[LineSegmentationModel]) -> HTRModel | LineSegmentationModel | None:
         try:
             model = self.model_router.models[model_name]
             return model() if issubclass(model, model_type) else None
@@ -86,32 +99,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--models_dir', required=True, type=str, help='Path to model directory')
     parser.add_argument('--port', required=True, type=int, help='Port to bind to')
-    parser.add_argument('--test_image_path', required=False, type=str)
     args = parser.parse_args()
+    sys.path.append(args.models_dir)
 
-    models_dir = args.models_dir
-    port = args.port
-    test_image_path = args.test_image_path
-
-    sys.path.append(models_dir)
-
-    ctx = zmq.Context()
-    dealer = ctx.socket(zmq.DEALER)
-
-    inf = InferenceServer(port=port, models_dir=models_dir)
-    dealer.connect(f'tcp://localhost:{port}')
-    print(f'Dealer connected to port {port}\n')
-
-    dealer.send_multipart([b'', b'query_available_models', b''])
-    _, _, payload = dealer.recv_multipart()
-    print(f'Available models: {payload.decode()}')
-
-    dealer.send_multipart([b'', b'line_seg_use', b'HiSAM'])
-    dealer.send_multipart([b'', b'htr_use', b'CRNN'])
-
-    dealer.send_multipart([b'', b'infer', test_image_path.encode()])
-    _, _, payload = dealer.recv_multipart()
-    print(f'Received payload {payload.decode()}')
-
-    dealer.send_multipart([b'', b'kill', b''])
-    dealer.close()
+    server = InferenceServer(port=args.port, models_dir=args.models_dir)
+    # Block until Electron closes the stdin pipe
+    sys.stdin.read()
+    server.shutdown()
