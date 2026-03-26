@@ -1,7 +1,7 @@
 import argparse
-import datetime
 import json
 import sys
+from datetime import date
 from pathlib import Path
 from threading import Thread, Event
 from typing import Dict, List
@@ -90,8 +90,8 @@ class InferenceServer:
 
         outlist = []
         for output in outputs:
-            orig_path = output.image_path
-            filename = f'{orig_path}_{datetime.date}_output.json'
+            orig_path = Path(output.image_path)
+            filename = f'{orig_path}_{date.today()}.json'
             with open(filename, 'w') as outfile:
                 results = to_builtin(output)
                 json.dump(results, outfile)
