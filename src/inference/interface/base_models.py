@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
-import numpy as np
 from torch.cuda import is_available
 
 from .utils import LineSegmentationOutput, TextRecognitionOutput
@@ -30,9 +29,10 @@ class BaseModel(ABC):
 
 class LineSegmentationModel(BaseModel):
     @abstractmethod
-    def __call__(self, images: List[np.ndarray]) -> List[LineSegmentationOutput]: pass
+    def __call__(self, image_paths: List[str]) -> List[LineSegmentationOutput]: pass
 
 
 class HTRModel(BaseModel):
     @abstractmethod
-    def __call__(self, images: List[np.ndarray], polygons: List[LineSegmentationOutput]) -> List[TextRecognitionOutput]: pass
+    def __call__(self, image_paths: List[str], polygons: List[LineSegmentationOutput]) -> List[
+        TextRecognitionOutput]: pass
