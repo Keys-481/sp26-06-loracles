@@ -10,6 +10,7 @@ TextAnnotation = NamedTuple('TextAnnotation', [('text', str), ('polygon', Polygo
 @dataclass
 class LineSegmentationOutput:
     polygons: List[Polygon]
+    image_path: str
 
     def __post_init__(self):
         for poly in self.polygons:
@@ -20,6 +21,7 @@ class LineSegmentationOutput:
 @dataclass
 class TextRecognitionOutput:
     annotations: List[TextAnnotation]
+    image_path: str
 
     def __post_init__(self):
         for annotation in self.annotations:

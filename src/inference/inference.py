@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -81,10 +82,21 @@ class InferenceServer:
                 available_models['LineSegmentation'].append(model)
         return available_models
 
-    def infer(self, img_paths: List[str]) -> Dict:
+    def infer(self, img_paths: List[str]) -> List[str]:
+        assert self.line_seg is not None
+        assert self.htr is not None
         polygons = self.line_seg(image_paths=img_paths)
         outputs = self.htr(image_paths=img_paths, polygons=polygons)
-        return to_builtin(outputs)
+
+        outlist = []
+        for output in outputs:
+            orig_path = output.image_path
+            filename = f'{orig_path}_{datetime.date}_output.json'
+            with open(filename, 'w') as outfile:
+                results = to_builtin(output)
+                json.dump(results, outfile)
+            outlist.append(filename)
+        return outlist
 
     def get_model(self, model_name: str,
                   model_type: type[HTRModel] | type[LineSegmentationModel]) -> HTRModel | LineSegmentationModel | None:
