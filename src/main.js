@@ -3,12 +3,15 @@ import path from 'node:path';
 import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 
-import * as zmq from "zeromq"
+import { Dealer } from 'zeromq';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
+
+const INFERENCE_PORT = 5555;
+let inferenceProcess = null;
 
 const createWindow = () => {
   // Create the browser window.
@@ -45,30 +48,27 @@ ipcMain.on("chooseFile", (event, arg) => {
   });
 });
 
-async function runServer() {
-  const sock = new zmq.Reply();
+/**
+ * Opens a dialog to make the user select a directory
+ * If operation is 'export', then 
+ */
+ipcMain.on("chooseFolder", async (event) => {
 
-  await sock.bind('tcp://*:5555');
+  const result = dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
 
-  for await (const [msg] of sock) {
-    console.log(`Received : [${msg.toString()}]`);
-    await sock.send('World');
-  }
-}
+  result.then(({canceled, filePaths, bookmarks}) => {
+    console.log(canceled, filePaths, bookmarks);
 
-async function runClient() {
-  console.log('Connecting to hello world server...');
+    if (!canceled) {
+      const selectedDirectory = filePaths[0];
+      // insert logic to pass directory to python via zmq
 
-  const sock = new zmq.Request();
-  sock.connect('tcp://localhost:5555');
-
-  for (let i = 0; i < 10; i++) {
-    console.log(`Sending Hello ${i}`);
-    await sock.send('Hello');
-    const [result] = await sock.receive();
-    console.log(`Received ${result.toString()} ${i}`);
-  }
-}
+      event.reply("chosenFolder", selectedDirectory);
+    }
+  })
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

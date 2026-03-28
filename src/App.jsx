@@ -8,6 +8,8 @@ import img_world from "./assets/world.png";
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
+let seldir = null;
+
 function App() {
   const [scanState, setScanState] = useState(false);
 
@@ -20,7 +22,7 @@ function App() {
               <img src={img_file} alt="Icon" class="icon"></img>
               <span>File Select</span>
             </button>
-            <button type="button" class="button">
+            <button type="button" class="button" onClick={async () => {window.electronAPI.openFolder();}}>
               <img src={img_folder} alt="Icon" class="icon"></img>
               <span>Folder Select</span>
             </button>
