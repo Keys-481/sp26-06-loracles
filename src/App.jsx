@@ -8,8 +8,6 @@ import img_world from "./assets/world.png";
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
-let seldir = null;
-
 function App() {
   const [scanState, setScanState] = useState(false);
 
