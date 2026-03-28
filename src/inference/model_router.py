@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Tuple, Type
 
-from .interface import BaseModel
+from src.inference.interface import BaseModel
 
 
 class ModelRouter:
@@ -43,13 +43,8 @@ class ModelRouter:
             print(f"Warning: {models_dir} is not a directory.")
             return {}
 
-        module_prefix = ".".join(models_dir.parts)
-        for root in sys.path:
-            try:
-                module_prefix = ".".join(models_dir.relative_to(Path(root or ".").resolve()).parts)
-                break
-            except ValueError:
-                continue
+        if str(models_dir) not in sys.path:
+            sys.path.insert(0, str(models_dir))
 
         models: Dict[str, Type[BaseModel]] = {}
         for entry in sorted(models_dir.iterdir()):
@@ -62,10 +57,11 @@ class ModelRouter:
             if not module_file.is_file():
                 continue
 
+            module_name = f"{dir_name}.{dir_name.lower()}"
             try:
-                module = importlib.import_module(f"{module_prefix}.{dir_name}.{dir_name.lower()}")
+                module = importlib.import_module(module_name)
             except Exception as e:
-                print(f"Warning: Failed to import {module_prefix}.{dir_name}.{dir_name.lower()}: {e}")
+                print(f"Warning: Failed to import {module_name}: {e}")
                 continue
 
             model_cls = next(
