@@ -7,8 +7,16 @@ import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld('electronAPI', {
   openImage: () => ipcRenderer.send('chooseFile'),
   // Load the image and fill the documentDisplay
-  opened: ipcRenderer.on('chosenFile', (event, base64) => {
+  openedFile: ipcRenderer.on('chosenFile', (event, base64) => {
     document.getElementById("documentDisplay").src = `data:image/jpg;base64,${base64}`;
   }),
-  selectImages: () => ipcRenderer.invoke('chooseFile') // Invoke main process handler
+
+  // Load the file path and log it in the console
+  openFolder: () => ipcRenderer.send('chooseFolder'),
+  openedFolder: ipcRenderer.on('chosenFolder', (event, directory) => {
+    console.log(directory);
+  }),
+
+  runServ: () => ipcRenderer.invoke('zmq:runServer'),
+  runClie: () => ipcRenderer.invoke('zmq:runClient'),
 });

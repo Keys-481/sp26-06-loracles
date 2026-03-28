@@ -1,5 +1,13 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const { resolve, join, dirname } = require('path');
+const { copy, mkdirs } = require('fs-extra');
+
+/** 
+ * Native modules to pack in the built version 
+ * ZeroMQ requires cmake-ts and node-addon-api 
+ */
+const requiredPackages = ['zeromq', 'cmake-ts', 'node-addon-api'];
 
 module.exports = {
   packagerConfig: {
@@ -73,4 +81,25 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  hooks: {
+    // Copies requiredPackages into the output build
+    packageAfterCopy: async (_forgeConfig, buildPath) => {
+
+      const sourceModulesPath = resolve(".", "node_modules");
+      const destModulesPath = resolve(buildPath, "node_modules");
+
+      await Promise.all(
+        requiredPackages.map(async (pkgName) => {
+          const sourcePkgPath = join(sourceModulesPath, pkgName);
+          const destPkgPath = join(destModulesPath, pkgName);
+
+          await mkdirs(dirname(destPkgPath));
+          await copy(sourcePkgPath, destPkgPath, {
+            recursive: true,
+            preserveTimestamps: true
+          });
+        })
+      );
+    }
+  }
 };
