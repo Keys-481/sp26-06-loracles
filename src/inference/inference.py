@@ -40,7 +40,6 @@ class InferenceServer:
             try:
                 identifier, _, topic, payload = self.router.recv_multipart()
             except zmq.ZMQError:
-                # Context was destroyed (e.g. by _heartbeat on parent death).
                 break
             topic = topic.decode()
 
