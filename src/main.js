@@ -45,7 +45,7 @@ function spawnInferenceServer(modelsDir) {
   });
 }
 
-async function testInference() {
+async function testInference(folder) {
   const dealer = new Dealer();
   dealer.connect(`tcp://localhost:${INFERENCE_PORT}`);
 
@@ -60,7 +60,7 @@ async function testInference() {
   await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
 
   // Run inference on test assets
-  const assetsDir = path.join(app.getAppPath(), 'test', 'inference', 'assets');
+  const assetsDir = folder;
   const imgPaths = fs.readdirSync(assetsDir).map(f => path.join(assetsDir, f));
   await dealer.send(['', 'infer', JSON.stringify(imgPaths)]);
   const [, , resultPayload] = await dealer.receive();
@@ -68,6 +68,7 @@ async function testInference() {
   console.log('[test] Inference results:', JSON.stringify(results, null, 2));
 
   dealer.close();
+  return results;
 }
 
 function killInferenceServer() {
@@ -126,7 +127,10 @@ ipcMain.on("chooseFolder", async (event) => {
     if (!canceled) {
       const selectedDirectory = filePaths[0];
       // insert logic to pass directory to python via zmq
-
+      const p = selectedDirectory;
+      console.log(p);
+      const r = testInference(p);
+      console.log(r);
       event.reply("chosenFolder", selectedDirectory);
     }
   });
@@ -164,7 +168,7 @@ app.whenReady().then(() => {
   const modelsDir = ensureModelsDir();
   spawnInferenceServer(modelsDir);
   // Give the Python process a moment to bind its ZMQ socket before connecting.
-  setTimeout(() => testInference().catch(console.error), 2000);
+  // setTimeout(() => testInference().catch(console.error), 2000);
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the
