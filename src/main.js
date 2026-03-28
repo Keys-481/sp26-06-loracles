@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 
 import { Dealer } from 'zeromq';
+import * as zmq from 'zeromq';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -11,7 +12,6 @@ if (started) {
 }
 
 const INFERENCE_PORT = 5555;
-let inferenceProcess = null;
 
 const createWindow = () => {
   // Create the browser window.
@@ -50,10 +50,8 @@ ipcMain.on("chooseFile", (event, arg) => {
 
 /**
  * Opens a dialog to make the user select a directory
- * If operation is 'export', then 
  */
 ipcMain.on("chooseFolder", async (event) => {
-
   const result = dialog.showOpenDialog({
     properties: ['openDirectory']
   });
@@ -69,6 +67,31 @@ ipcMain.on("chooseFolder", async (event) => {
     }
   })
 });
+
+async function runServer() {
+  const sock = new zmq.Reply();
+
+  await sock.bind(`tcp://*:${INFERENCE_PORT}`);
+
+  for await (const [msg] of sock) {
+    console.log(`Received : [${msg.toString()}]`);
+    await sock.send('World');
+  }
+}
+
+async function runClient() {
+  console.log('Connecting to hello world server...');
+
+  const sock = new zmq.Request();
+  sock.connect(`tcp://localhost:${INFERENCE_PORT}`);
+
+  for (let i = 0; i < 10; i++) {
+    console.log(`Sending Hello ${i}`);
+    await sock.send('Hello');
+    const [result] = await sock.receive();
+    console.log(`Received ${result.toString()} ${i}`);
+  }
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
