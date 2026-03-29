@@ -6,6 +6,8 @@ import { spawn } from 'node:child_process';
 import { Dealer } from 'zeromq';
 import * as zmq from 'zeromq';
 
+import InferenceResult from './parser/InferenceResult';
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
@@ -67,8 +69,10 @@ async function testInference(folder) {
   const results = JSON.parse(resultPayload.toString());
   console.log('[test] Inference results:', JSON.stringify(results, null, 2));
 
+  for (const r of results) {
+    new InferenceResult(r);
+  }
   dealer.close();
-  return results;
 }
 
 function killInferenceServer() {
@@ -125,13 +129,10 @@ ipcMain.on("chooseFolder", async (event) => {
     console.log(canceled, filePaths, bookmarks);
 
     if (!canceled) {
-      const selectedDirectory = filePaths[0];
-      // insert logic to pass directory to python via zmq
-      const p = selectedDirectory;
-      console.log(p);
+      const p = filePaths[0];
       const r = testInference(p);
-      console.log(r);
-      event.reply("chosenFolder", selectedDirectory);
+
+      event.reply("chosenFolder", filePaths[0]);
     }
   });
 });
