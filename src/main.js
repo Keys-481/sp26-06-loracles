@@ -70,7 +70,10 @@ async function testInference(folder) {
   console.log('[test] Inference results:', JSON.stringify(results, null, 2));
 
   for (const r of results) {
-    new InferenceResult(r);
+    let i = new InferenceResult(r);
+    i.init(() => {
+      console.log(i.allLines().join("\n"));
+    });
   }
   dealer.close();
 }
@@ -126,8 +129,6 @@ ipcMain.on("chooseFolder", async (event) => {
   });
 
   result.then(({canceled, filePaths, bookmarks}) => {
-    console.log(canceled, filePaths, bookmarks);
-
     if (!canceled) {
       const p = filePaths[0];
       const r = testInference(p);
@@ -136,31 +137,6 @@ ipcMain.on("chooseFolder", async (event) => {
     }
   });
 });
-
-async function runServer() {
-  const sock = new zmq.Reply();
-
-  await sock.bind(`tcp://*:${INFERENCE_PORT}`);
-
-  for await (const [msg] of sock) {
-    console.log(`Received : [${msg.toString()}]`);
-    await sock.send('World');
-  }
-}
-
-async function runClient() {
-  console.log('Connecting to hello world server...');
-
-  const sock = new zmq.Request();
-  sock.connect(`tcp://localhost:${INFERENCE_PORT}`);
-
-  for (let i = 0; i < 10; i++) {
-    console.log(`Sending Hello ${i}`);
-    await sock.send('Hello');
-    const [result] = await sock.receive();
-    console.log(`Received ${result.toString()} ${i}`);
-  }
-}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

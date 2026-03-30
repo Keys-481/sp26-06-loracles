@@ -1,6 +1,10 @@
+/**
+ * Uint32 based coordinates for use with image bounds
+ */
 class ImagePoint {
   /**
    * Length 2 Uint32Array to store x and y
+   * @type Uint32Array
    */
   #point;
 
@@ -42,6 +46,10 @@ class ImagePoint {
    */
   set y(value) {
     this.#point[1] = value;
+  }
+
+  toString() {
+    return `(${this.#point})`;
   }
 }
 

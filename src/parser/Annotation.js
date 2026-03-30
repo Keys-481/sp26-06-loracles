@@ -23,6 +23,10 @@ class Annotation {
   set bounds(value) {
     this.#bounds = value;
   }
+
+  toString() {
+    return `${this.#bounds}: ${this.#line}`;
+  }
 }
 
 export default Annotation;

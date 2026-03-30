@@ -15,8 +15,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFolder: () => ipcRenderer.send('chooseFolder'),
   openedFolder: ipcRenderer.on('chosenFolder', (event, directory) => {
     console.log(directory);
-  }),
-
-  runServ: () => ipcRenderer.invoke('zmq:runServer'),
-  runClie: () => ipcRenderer.invoke('zmq:runClient'),
+  })
 });

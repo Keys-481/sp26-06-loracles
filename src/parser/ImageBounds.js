@@ -1,45 +1,83 @@
 import ImagePoint from './ImagePoint';
 
+/**
+ * Bounds of an image. Uses two ImagePoints for the top and bottom corner
+ */
 class ImageBounds {
-
-  #northWest; /** Top left corner */
-  #southEast; /** bottom right corner */
-
+  /** 
+   * Top left corner 
+   * @type ImagePoint
+   */
+  #northWest; 
+  /** 
+   * Bottom right corner 
+   * @type ImagePoint
+   */
+  #southEast;
+  
   constructor(nw, se) {
     this.#northWest = new ImagePoint(nw);
     this.#southEast = new ImagePoint(se);
   }
 
+  /**
+   * @returns x value of the northwest corner
+   */
   get x1() {
     return this.#northWest.x;
   }
 
+  /**
+   * @returns y value of the northwest corner
+   */
   get y1() {
     return this.#northWest.y;
   }
 
+  /**
+   * @returns x value of the southeast corner
+   */
   get x2() {
     return this.#southEast.x;
   }
 
+  /**
+   * @returns y value of the southeast corner
+   */
   get y2() {
     return this.#southEast.y;
   }
 
+  /**
+   * Sets x value of the northwest corner
+   */
   set x1(value) {
     this.#northWest.x = value;
   }
 
+  /**
+   * Sets y value of the northwest corner
+   */
   set y1(value) {
     this.#northWest.y = value;
   }
 
+  /**
+   * Sets x value of the southeast corner
+   */
   set x2(value) {
     this.#southEast.x = value;
   }
 
+  /**
+   * Sets y value of the southeast corner
+   */
   set y2(value) {
     this.#southEast.y = value;
+  }
+
+  toString() {
+    return `(${this.#northWest} -> ${this.#southEast})`;
   }
 }
 
