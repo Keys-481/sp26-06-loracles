@@ -65,3 +65,8 @@ body {
   width: 40px;
   display: inline-block;
 }
+
+#documentDisplay {
+  max-width: 90%;
+  max-height: 70%;
+}
