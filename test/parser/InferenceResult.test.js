@@ -156,13 +156,14 @@ test("Annotation valid", () => {
 });
 
 // Check valid object
-test("InferenceResult valid", () => {
+test("InferenceResult valid", async () => {
   const l = "This is a line of text";
   const p1 = [0, 1];
   const p2 = [500, 20];
   let ir;
 
-  expect(() => {ir = new InferenceResult("./files/exfile.json");}).not.toThrow();
-
+  expect(() => {ir = new InferenceResult("./files/nonexistentFile.json");}).not.toThrow();
+  expect(() => {ir.allLines();}).toThrow(Error);
   expect(ir).toBeInstanceOf(InferenceResult);
+  expect(ir.init(() => {})).rejects.toThrow();
 });

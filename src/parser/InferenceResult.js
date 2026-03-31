@@ -28,7 +28,13 @@ class InferenceResult {
    * @param {*} callback function to run after file has been read
    */
   async init(callback) {
-    const data = await fs.readFile(this.#filePath, {encoding: this.#encoding});
+    let data;
+
+    try {
+      data = await fs.readFile(this.#filePath, {encoding: this.#encoding});
+    } catch (err) {
+      return Promise.reject(err);
+    }
 
     // Try to parse the JSON file into a JS object
     // throws SyntaxError if its an invalid format for a JSON file
@@ -53,6 +59,9 @@ class InferenceResult {
    * @returns {string[]} an array with every line in the annotations
    */
   allLines() {
+    if (!this.annotations) {
+      throw new Error('InferenceResult must have init() called on it');
+    }
     let lines = [];
     for (let i = 0; i < this.annotations.length; i++) {
       lines.push(this.annotations[i].line);
