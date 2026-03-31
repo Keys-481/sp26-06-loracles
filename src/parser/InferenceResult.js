@@ -22,9 +22,9 @@ class InferenceResult {
 
   /**
    * Parses the JSON file this object was constructed with.
-   * 
+   *
    * When finished, results are stored in this.annotations
-   * 
+   *
    * @param {*} callback function to run after file has been read
    */
   async init(callback) {
@@ -35,7 +35,6 @@ class InferenceResult {
     let json = JSON.parse(data);
     let annots = new Array();
     for (const a of json["annotations"]) {
-      
       // Get the minimum and maximum x and y values for each corner of the square
       const x1 = Math.min(...(a[1][0].map(e => e[0])));
       const y1 = Math.min(...(a[1][0].map(e => e[1])));

@@ -4,17 +4,25 @@ import ImagePoint from './ImagePoint';
  * Bounds of an image. Uses two ImagePoints for the top and bottom corner
  */
 class ImageBounds {
-  /** 
-   * Top left corner 
+  /**
+   * Top left corner
    * @type ImagePoint
    */
-  #northWest; 
-  /** 
-   * Bottom right corner 
+  #northWest;
+  /**
+   * Bottom right corner
    * @type ImagePoint
    */
   #southEast;
-  
+
+  /**
+   * Construct a new ImageBounds with the specified northwest and southeast corners.
+   *
+   * nw and se can be Arrays of numbers or TypedArrays
+   *
+   * @param {number[]} nw Northwest corner point, where nw[0] is x and nw[1] is y
+   * @param {number[]} se Southeast corner point, where se[0] is x and se[1] is y
+   */
   constructor(nw, se) {
     this.#northWest = new ImagePoint(nw);
     this.#southEast = new ImagePoint(se);
