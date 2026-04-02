@@ -155,11 +155,7 @@ test("Annotation valid", () => {
   expect(a.toString()).toBeTypeOf("string");
 });
 
-// Check valid object
-test("InferenceResult valid", async () => {
-  const l = "This is a line of text";
-  const p1 = [0, 1];
-  const p2 = [500, 20];
+test("InferenceResult invalid file caught", async () => {
   let ir;
 
   expect(() => {ir = new InferenceResult("./files/nonexistentFile.json");}).not.toThrow();
@@ -169,6 +165,11 @@ test("InferenceResult valid", async () => {
     expect(ir.annotations).toBeUndefined();
     expect(() => {ir.allLines();}).toThrow(Error);
   });
+});
+
+// Check valid object
+test("InferenceResult valid file", async () => {
+  let ir;
 
   expect(() => {ir = new InferenceResult("./test/parser/example/tstfile01.json");}).not.toThrow();
   expect(() => {ir.allLines();}).toThrow(Error);
@@ -179,14 +180,44 @@ test("InferenceResult valid", async () => {
     expect(ir.annotations[0]).toBeInstanceOf(Annotation);
     expect(ir.annotations[0].line).toBeTypeOf("string");
     expect(ir.annotations[0].bounds).toBeInstanceOf(ImageBounds);
-    expect(ir.annotations[0].line).toBe("this is a line");
+    expect.soft(ir.annotations[0].line).toBe("this is a line");
 
     let out;
     expect(() => {out = ir.allLines();}).not.toThrow();
     expect(out).toBeInstanceOf(Array);
     expect(out).toHaveLength(1);
-    expect(out[0]).toBe("this is a line");
-
+    expect.soft(out[0]).toBe("this is a line");
   });
-  
+});
+
+// Check valid object
+test("InferenceResult with unique characters valid", async () => {
+  let ir;
+
+  expect(() => {ir = new InferenceResult("./test/parser/example/tstfile02.json");}).not.toThrow();
+  expect(() => {ir.allLines();}).toThrow(Error);
+  expect(ir).toBeInstanceOf(InferenceResult);
+  expect(ir.init(() => {})).resolves.not.toThrow().then(() => {
+    expect(ir.annotations).toBeInstanceOf(Array);
+    expect(ir.annotations).toHaveLength(7);
+    expect(ir.annotations[0]).toBeInstanceOf(Annotation);
+    expect(ir.annotations[0].line).toBeTypeOf("string");
+    expect(ir.annotations[0].bounds).toBeInstanceOf(ImageBounds);
+    expect(ir.annotations[0].line).toBe("So don't you forget that all you project is just to protect you from");
+    expect(ir.annotations[2].bounds).toBeInstanceOf(ImageBounds);
+    expect.soft(ir.annotations[2].line).toBe("P ≔ {Yes, no} ⫰ ∅; yes, P ≡ ⊥; no, ⊭𝒮P∨¬P");
+    expect(ir.annotations[5].bounds).toBeInstanceOf(ImageBounds);
+    expect.soft(ir.annotations[5].line).toBe("אֶהְיֶה אֲשֶׁר אֶהְיֶה");
+    expect(ir.annotations[6].bounds).toBeInstanceOf(ImageBounds);
+    expect.soft(ir.annotations[6].line).toBe("kaplumbağaları gibi KAPLUMBAĞALARI GİBİ");
+
+    let out;
+    expect(() => {out = ir.allLines();}).not.toThrow();
+    expect(out).toBeInstanceOf(Array);
+    expect(out).toHaveLength(7);
+    expect(out[0]).toBe("So don't you forget that all you project is just to protect you from");
+    expect.soft(out[2]).toBe("P ≔ {Yes, no} ⫰ ∅; yes, P ≡ ⊥; no, ⊭𝒮P∨¬P");
+    expect.soft(out[5]).toBe("אֶהְיֶה אֲשֶׁר אֶהְיֶה");
+    expect.soft(out[6]).toBe("kaplumbağaları gibi KAPLUMBAĞALARI GİBİ");
+  });
 });
