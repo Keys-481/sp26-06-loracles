@@ -165,5 +165,28 @@ test("InferenceResult valid", async () => {
   expect(() => {ir = new InferenceResult("./files/nonexistentFile.json");}).not.toThrow();
   expect(() => {ir.allLines();}).toThrow(Error);
   expect(ir).toBeInstanceOf(InferenceResult);
-  expect(ir.init(() => {})).rejects.toThrow();
+  expect(ir.init(() => {})).rejects.toThrow().then(() => {
+    expect(ir.annotations).toBeUndefined();
+    expect(() => {ir.allLines();}).toThrow(Error);
+  });
+
+  expect(() => {ir = new InferenceResult("./test/parser/example/tstfile01.json");}).not.toThrow();
+  expect(() => {ir.allLines();}).toThrow(Error);
+  expect(ir).toBeInstanceOf(InferenceResult);
+  expect(ir.init(() => {})).resolves.not.toThrow().then(() => {
+    expect(ir.annotations).toBeInstanceOf(Array);
+    expect(ir.annotations).toHaveLength(1);
+    expect(ir.annotations[0]).toBeInstanceOf(Annotation);
+    expect(ir.annotations[0].line).toBeTypeOf("string");
+    expect(ir.annotations[0].bounds).toBeInstanceOf(ImageBounds);
+    expect(ir.annotations[0].line).toBe("this is a line");
+
+    let out;
+    expect(() => {out = ir.allLines();}).not.toThrow();
+    expect(out).toBeInstanceOf(Array);
+    expect(out).toHaveLength(1);
+    expect(out[0]).toBe("this is a line");
+
+  });
+  
 });
