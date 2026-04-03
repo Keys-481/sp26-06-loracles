@@ -133,7 +133,7 @@ ipcMain.on("chooseFolder", async (event) => {
       const p = filePaths[0];
       const r = testInference(p);
 
-      event.reply("chosenFolder", filePaths[0]);
+      event.reply("chosenFolder", p);
     }
   });
 });
