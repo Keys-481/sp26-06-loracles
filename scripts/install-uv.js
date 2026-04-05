@@ -5,6 +5,8 @@ const https = require('https');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
+const tar = require('tar');
+const extractZip = require('extract-zip');
 
 const UV_VERSION = '0.11.2';
 const UV_BASE_URL = `https://github.com/astral-sh/uv/releases/download/${UV_VERSION}`;
@@ -84,44 +86,44 @@ async function uvFetchAndInstall() {
   // Extract uv to archive path
   console.log('Extracting uv...');
   if (filename.endsWith('.zip')) {
-    execSync(`powershell -command "Expand-Archive -Path '${archivePath}' -DestinationPath '${uvDir}' -Force"`, {
-      stdio: 'inherit',
-    });
+    await extractZip(archivePath, { dir: uvDir });
   } else {
-    execSync(`tar -xzf "${archivePath}" -C "${uvDir}"`, {
-      stdio: 'inherit',
-    });
+    await tar.x({ file: archivePath, cwd: uvDir });
   }
 
-  // Ensure that binary was properly installed or exists where expected
-  let extractedBinaryPath = path.join(uvDir, binaryName);
-  let possiblePaths = [
-    extractedBinaryPath,
-    path.join(uvDir, 'uv', binaryName),
-    path.join(uvDir, `uv-${process.arch}`, binaryName),
-  ];
-
+  // Verify uv binary exists as expected
   let foundBinary = false;
-  for (let possiblePath of possiblePaths) {
-    if (await fs.pathExists(possiblePath)) {
-      if (possiblePath !== extractedBinaryPath) {
-        await fs.move(possiblePath, extractedBinaryPath, { overwrite: true });
+  let extractedBinaryPath = null;
+  const uvFind = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        uvFind(path.join(dir, entry.name));
+      } else if (entry.name === binaryName) {
+        foundBinary = true;
+        extractedBinaryPath = path.join(dir, entry.name);
+        return;
       }
-      foundBinary = true;
-      break;
+      if (foundBinary) return;
     }
-  }
+  };
+  uvFind(uvDir);
 
   if (!foundBinary) {
     throw new Error('Could not find uv binary in extracted archive');
   }
 
-  // Make uv executable for macOS/Linux platforms
-  if (process.platform !== 'win32') {
-    execSync(`chmod +x "${extractedBinaryPath}"`);
+  // Move binary to uvDir root if it was extracted into a subdirectory
+  if (extractedBinaryPath !== path.join(uvDir, binaryName)) {
+    await fs.move(extractedBinaryPath, path.join(uvDir, binaryName));
+    extractedBinaryPath = path.join(uvDir, binaryName);
   }
 
-  // Cleanup
+  // Make uv executable for macOS/Linux platforms
+  if (process.platform !== 'win32') {
+    fs.chmodSync(extractedBinaryPath, 0o755);
+  }
+
+  // Cleanup archive and any leftover subdirectories
   await fs.remove(archivePath);
   const extractedDirs = await fs.readdir(uvDir);
   for (const item of extractedDirs) {
