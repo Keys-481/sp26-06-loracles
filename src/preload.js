@@ -15,5 +15,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFolder: () => ipcRenderer.send('chooseFolder'),
   openedFolder: ipcRenderer.on('chosenFolder', (event, directory) => {
     console.log(directory);
+  }),
+
+  onUpdateOutputText: (callback) => ipcRenderer.on('updateOutputText', (event, lines) => {
+    document.getElementById('outputTextBox_textarea').value = lines.join('<br/>');
   })
 });

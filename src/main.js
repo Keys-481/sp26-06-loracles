@@ -75,7 +75,9 @@ async function testInference(folder) {
       console.log(i.allLines().join("\n"));
     });
   }
+
   dealer.close();
+  return results;
 }
 
 function killInferenceServer() {
