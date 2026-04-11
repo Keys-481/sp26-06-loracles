@@ -32,6 +32,7 @@ function spawnInferenceServer(modelsDir) {
     '-m', 'src.inference.inference',
     '--models_dir', modelsDir,
     '--port', String(INFERENCE_PORT),
+    '--temp_dir', path.join(app.getPath('userData'), 'temp'),
   ], {
     cwd: appRoot,  // project root on sys.path so 'src.inference...' imports resolve
     // stdin is kept open as a pipe — when Electron dies unexpectedly the OS
