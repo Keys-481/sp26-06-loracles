@@ -4,6 +4,8 @@ import fse from 'fs-extra';
 import { spawn } from 'node:child_process';
 
 const PYTHON_VERSION = '3.13';
+const TORCH_VER = '2.11.0';
+const TORCHVISION_VER = '0.26.0';
 
 class PyManager {
   get _resourcesPath() {
@@ -33,6 +35,7 @@ class PyManager {
 
   // Ensure base venv exists
   // Installs requirements for any models already in modelsDir
+  // Installs base requirements, and torch based on available backend
   async initialize(modelsDir) {
     if (!(await fse.pathExists(this._uvPath))) {
       throw new Error(`uv binary not found at ${this._uvPath}`);
@@ -50,7 +53,7 @@ class PyManager {
 
   async _installTorch() {
     await this._run(this._uvPath, [
-      'pip', 'install', 'torch', 'torchvision',
+      'pip', 'install', `torch==${TORCH_VER}`, `torchvision==${TORCHVISION_VER}`,
       '--reinstall-package', 'torch',
       '--reinstall-package', 'torchvision',
       '--torch-backend=auto',
