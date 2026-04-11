@@ -8,6 +8,7 @@ class InferenceResult {
   annotations;
   #filePath;
   #encoding;
+  #imagePath;
 
   /**
    * Set up the object so annotations can be loaded after init() is called
@@ -51,8 +52,13 @@ class InferenceResult {
       annots.push(new Annotation(a[0], [x1, y1], [x2, y2]));
     }
 
-    this.annotations = annots;
+    this.#imagePath = json["image_path"] ?? null;
+    this.annotations = annots.sort((a, b) => a.bounds.y1 - b.bounds.y1);
     callback.bind(this)();
+  }
+
+  get imagePath() {
+    return this.#imagePath;
   }
 
   /**

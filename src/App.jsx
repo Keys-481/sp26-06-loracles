@@ -1,58 +1,108 @@
-import { useState } from "react";
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
-import img_file from "./assets/file.png";
-import img_folder from "./assets/folder.png";
-import img_settings from "./assets/settings.png";
-import img_world from "./assets/world.png";
+import { useState, useEffect } from "react";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import Box from "@mui/material/Box";
 
-import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
-import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
+import TopBar from "./components/TopBar";
+import ImagePane from "./components/ImagePane";
+import TextPane from "./components/TextPane";
+import NavBar from "./components/NavBar";
+import SettingsDialog from "./components/SettingsDialog";
+
+const theme = createTheme({
+  palette: {
+    primary: { main: "#1565c0" },
+    background: { default: "#f0f2f5" },
+  },
+  shape: { borderRadius: 8 },
+});
 
 function App() {
-  const [scanState, setScanState] = useState(false);
+  // Each item: { base64: string, text: string, filename: string, path: string }
+  const [items, setItems] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    // Single file selected — main sends { base64, path }
+    window.electronAPI.onFileChosen(({ base64, path: filePath }) => {
+      setItems([{ base64, text: '', filename: filePath.split('/').pop(), path: filePath }]);
+      setCurrentIndex(0);
+    });
+
+    // Folder selected — main sends [{ base64, path, filename }]
+    window.electronAPI.onFolderChosen((files) => {
+      setItems(files.map(f => ({ base64: f.base64, text: '', filename: f.filename, path: f.path })));
+      setCurrentIndex(0);
+    });
+
+    // Inference complete — main sends [{ base64, text, filename, path }]
+    window.electronAPI.onInferenceComplete((results) => {
+      setItems(results);
+      setCurrentIndex(0);
+      setIsRunning(false);
+    });
+
+    window.electronAPI.onInferenceError((message) => {
+      console.error('Inference error:', message);
+      setIsRunning(false);
+    });
+
+    return () => {
+      window.electronAPI.removeListeners('chosenFile');
+      window.electronAPI.removeListeners('chosenFolder');
+      window.electronAPI.removeListeners('inferenceComplete');
+      window.electronAPI.removeListeners('inferenceError');
+    };
+  }, []);
+
+  const current = items[currentIndex];
+
+  const handleTextChange = (text) => {
+    setItems((prev) =>
+      prev.map((item, i) => (i === currentIndex ? { ...item, text } : item))
+    );
+  };
+
+  const handleRunInference = () => {
+    setIsRunning(true);
+    window.electronAPI.runInference();
+  };
 
   return (
-    <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
-      <div class="parent">
-        <div class="div1">
-          <div class="buttonRow">
-            <button type="button" class="button" onClick={() => {window.electronAPI.openImage();}}>
-              <img src={img_file} alt="Icon" class="icon"></img>
-              <span>File Select</span>
-            </button>
-            <button type="button" class="button" onClick={async () => {window.electronAPI.openFolder();}}>
-              <img src={img_folder} alt="Icon" class="icon"></img>
-              <span>Folder Select</span>
-            </button>
-            <button type="button" class="button" onClick={() => {window.electronAPI.runServ();}}>
-              <img src={img_settings} alt="Icon" class="icon"></img>
-              <span>Settings</span>
-            </button>
-            <button type="button" class="button" onClick={() => {window.electronAPI.runClie();}}>
-              <img src={img_world} alt="Icon" class="icon"></img>
-              <span>Language</span>
-            </button>
-          </div>
-        </div>
-        <div className="div2">
-          <p>Box 2</p>
-          <p>Document Display</p>
-          <img id="documentDisplay"/>
-        </div>
-        <div className="div3">
-          <ScanControlBox
-            scanState={scanState}
-            onRunInferenceButton={() => setScanState(true)}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <TopBar
+          onOpenFile={() => window.electronAPI.openImage()}
+          onOpenFolder={() => window.electronAPI.openFolder()}
+          onSettings={() => setSettingsOpen(true)}
+          onRunInference={handleRunInference}
+          isRunning={isRunning}
+          hasFiles={items.length > 0}
+        />
+        <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+          <ImagePane base64={current?.base64} />
+          <TextPane
+            text={current?.text ?? ""}
+            onChange={handleTextChange}
           />
-        </div>
-        <div class="div4">
-          <OutputTextBox
-            labelText={"Output goes here"}
-            scannedText={scanState ? 'this is scanned text' : ''}
-          />
-        </div>
-      </div>
-    </div>
+        </Box>
+        <NavBar
+          currentIndex={currentIndex}
+          total={items.length}
+          onPrev={() => setCurrentIndex((i) => i - 1)}
+          onNext={() => setCurrentIndex((i) => i + 1)}
+          filename={current?.filename ?? ""}
+        />
+        <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      </Box>
+    </ThemeProvider>
   );
 }
 

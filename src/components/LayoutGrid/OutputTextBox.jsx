@@ -1,3 +1,6 @@
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+
 /**
  * React compoenent for the output Text box of the UI.
  *
@@ -19,18 +22,25 @@ function OutputTextBox({ labelText, placeholder="", scannedText="" }) {
   if (labelText.trim() === "")
     throw new Error(`Expected non-empty string`);
 
-  return(
-    <div id="outputTextBox">
-      <label for="outputTextBox_textarea">{labelText}</label>
-      <br/>
-      <textarea id="outputTextBox_textarea"
-        autoCapitalize="off"
-        autoComplete="off"
-        spellCheck="false"
-        placeholder={placeholder} // Text to display when textarea is empty
+  return (
+    <Box id="outputTextBox" sx={{ p: 2, height: "100%", boxSizing: "border-box" }}>
+      <TextField
+        id="outputTextBox_textarea"
+        label={labelText}
+        placeholder={placeholder}
         value={scannedText}
+        multiline
+        fullWidth
+        slotProps={{
+          htmlInput: {
+            autoCapitalize: "off",
+            autoComplete: "off",
+            spellCheck: false,
+          }
+        }}
+        sx={{ height: "100%", "& .MuiInputBase-root": { height: "100%", alignItems: "flex-start" } }}
       />
-    </div>
+    </Box>
   );
 }
 

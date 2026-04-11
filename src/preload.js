@@ -3,17 +3,20 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
-// Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
-  openImage: () => ipcRenderer.send('chooseFile'),
-  // Load the image and fill the documentDisplay
-  openedFile: ipcRenderer.on('chosenFile', (event, base64) => {
-    document.getElementById("documentDisplay").src = `data:image/jpg;base64,${base64}`;
-  }),
-
-  // Load the file path and log it in the console
+  // File / folder selection
+  openImage:  () => ipcRenderer.send('chooseFile'),
   openFolder: () => ipcRenderer.send('chooseFolder'),
-  openedFolder: ipcRenderer.on('chosenFolder', (event, directory) => {
-    console.log(directory);
-  })
+
+  // Inference
+  runInference: () => ipcRenderer.send('runInference'),
+
+  // Callbacks — main process pushes results to renderer via these
+  onFileChosen:        (cb) => ipcRenderer.on('chosenFile',        (_e, data)    => cb(data)),
+  onFolderChosen:      (cb) => ipcRenderer.on('chosenFolder',      (_e, items)   => cb(items)),
+  onInferenceComplete: (cb) => ipcRenderer.on('inferenceComplete', (_e, items)   => cb(items)),
+  onInferenceError:    (cb) => ipcRenderer.on('inferenceError',    (_e, message) => cb(message)),
+
+  // Cleanup
+  removeListeners: (channel) => ipcRenderer.removeAllListeners(channel),
 });

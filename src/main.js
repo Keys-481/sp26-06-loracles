@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 import { spawn } from 'node:child_process';
 import { Dealer } from 'zeromq';
-import * as zmq from 'zeromq';
 
 import InferenceResult from './parser/InferenceResult';
 
@@ -14,7 +13,10 @@ if (started) {
 }
 
 const INFERENCE_PORT = 5555;
+const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.tiff']);
+
 let inferenceProcess = null;
+let selectedImagePaths = []; // populated by chooseFile / chooseFolder
 
 function ensureModelsDir() {
   let modelsDir = path.join(app.getPath('userData'), 'models');
@@ -33,7 +35,7 @@ function spawnInferenceServer(modelsDir) {
     '--models_dir', modelsDir,
     '--port', String(INFERENCE_PORT),
   ], {
-    cwd: appRoot,  // project root on sys.path so 'src.inference...' imports resolve
+    cwd: appRoot,
     // stdin is kept open as a pipe — when Electron dies unexpectedly the OS
     // closes the write end, Python reads EOF in _heartbeat and self-terminates.
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -47,37 +49,6 @@ function spawnInferenceServer(modelsDir) {
   });
 }
 
-async function testInference(folder) {
-  const dealer = new Dealer();
-  dealer.connect(`tcp://localhost:${INFERENCE_PORT}`);
-
-  // Query available models
-  await dealer.send(['', 'query_available_models', '']);
-  const [, , modelsPayload] = await dealer.receive();
-  const models = JSON.parse(modelsPayload.toString());
-  console.log('[test] Available models:', models);
-
-  // Select first available model of each type
-  await dealer.send(['', 'htr_use', models.HTR[0]]);
-  await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
-
-  // Run inference on test assets
-  const assetsDir = folder;
-  const imgPaths = fs.readdirSync(assetsDir).map(f => path.join(assetsDir, f));
-  await dealer.send(['', 'infer', JSON.stringify(imgPaths)]);
-  const [, , resultPayload] = await dealer.receive();
-  const results = JSON.parse(resultPayload.toString());
-  console.log('[test] Inference results:', JSON.stringify(results, null, 2));
-
-  for (const r of results) {
-    let i = new InferenceResult(r);
-    i.init(() => {
-      console.log(i.allLines().join("\n"));
-    });
-  }
-  dealer.close();
-}
-
 function killInferenceServer() {
   if (inferenceProcess && !inferenceProcess.killed) {
     inferenceProcess.kill('SIGTERM');
@@ -86,7 +57,6 @@ function killInferenceServer() {
 }
 
 const createWindow = () => {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -96,60 +66,99 @@ const createWindow = () => {
     },
   });
 
-  // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
 
-// Handle IPC request to select images
-ipcMain.on("chooseFile", (event, arg) => {
-  const result = dialog.showOpenDialog({
-    properties: ["openFile"],
-    filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff'] }]
-  });
-
-  result.then(({canceled, filePaths, bookmarks}) => {
+// Handle IPC request to select a single image file
+ipcMain.on('chooseFile', (event) => {
+  dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'tiff'] }],
+  }).then(({ canceled, filePaths }) => {
+    if (canceled) return;
+    selectedImagePaths = filePaths;
     const base64 = fs.readFileSync(filePaths[0]).toString('base64');
-    event.reply("chosenFile", base64);
+    event.reply('chosenFile', { base64, path: filePaths[0] });
   });
 });
 
-/**
- * Opens a dialog to make the user select a directory
- */
-ipcMain.on("chooseFolder", async (event) => {
-  const result = dialog.showOpenDialog({
-    properties: ['openDirectory']
-  });
+// Handle IPC request to select a folder of images
+ipcMain.on('chooseFolder', (event) => {
+  dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  }).then(({ canceled, filePaths }) => {
+    if (canceled) return;
 
-  result.then(({canceled, filePaths, bookmarks}) => {
-    if (!canceled) {
-      const p = filePaths[0];
-      const r = testInference(p);
+    const folderPath = filePaths[0];
+    selectedImagePaths = fs.readdirSync(folderPath)
+      .filter(f => IMAGE_EXTENSIONS.has(path.extname(f).toLowerCase()))
+      .map(f => path.join(folderPath, f));
 
-      event.reply("chosenFolder", p);
-    }
+    const items = selectedImagePaths.map(p => ({
+      base64: fs.readFileSync(p).toString('base64'),
+      path: p,
+      filename: path.basename(p),
+    }));
+
+    event.reply('chosenFolder', items);
   });
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// Handle IPC request to run inference on the current selection
+ipcMain.on('runInference', async (event) => {
+  if (selectedImagePaths.length === 0) return;
+
+  const dealer = new Dealer();
+  dealer.connect(`tcp://localhost:${INFERENCE_PORT}`);
+
+  try {
+    // Query and select models
+    await dealer.send(['', 'query_available_models', '']);
+    const [, , modelsPayload] = await dealer.receive();
+    const models = JSON.parse(modelsPayload.toString());
+
+    await dealer.send(['', 'htr_use', models.HTR[0]]);
+    await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
+
+    // Run inference — Python returns a list of JSON result file paths
+    await dealer.send(['', 'infer', JSON.stringify(selectedImagePaths)]);
+    const [, , resultPayload] = await dealer.receive();
+    const resultPaths = JSON.parse(resultPayload.toString());
+
+    // Parse each result file and assemble UI items
+    const items = await Promise.all(resultPaths.map(async (jsonPath) => {
+      const ir = new InferenceResult(jsonPath);
+      await ir.init(() => {});
+      const imgPath = ir.imagePath;
+      const base64 = fs.readFileSync(imgPath).toString('base64');
+      return {
+        base64,
+        text: ir.allLines().join('\n'),
+        filename: path.basename(imgPath),
+        path: imgPath,
+      };
+    }));
+
+    event.reply('inferenceComplete', items);
+  } catch (err) {
+    console.error('[inference] runInference failed:', err);
+    event.reply('inferenceError', err.message);
+  } finally {
+    dealer.close();
+  }
+});
+
 app.whenReady().then(() => {
   const modelsDir = ensureModelsDir();
   spawnInferenceServer(modelsDir);
-  // Give the Python process a moment to bind its ZMQ socket before connecting.
-  // setTimeout(() => testInference().catch(console.error), 2000);
   createWindow();
 
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -161,14 +170,8 @@ app.whenReady().then(() => {
 // For unexpected crashes the stdin pipe closure handles it (see _heartbeat in inference.py).
 app.on('before-quit', killInferenceServer);
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
