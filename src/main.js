@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 import { spawn } from 'node:child_process';
 import { Dealer } from 'zeromq';
-import * as zmq from 'zeromq';
 
 import InferenceResult from './parser/InferenceResult';
 
@@ -69,15 +68,17 @@ async function testInference(folder) {
   const results = JSON.parse(resultPayload.toString());
   console.log('[test] Inference results:', JSON.stringify(results, null, 2));
 
+  let irs = []
   for (const r of results) {
     let i = new InferenceResult(r);
-    i.init(() => {
-      console.log(i.allLines().join("\n"));
-    });
+    i.init();
+    irs.push(i);
   }
 
+
+
   dealer.close();
-  return results;
+  return irs;
 }
 
 function killInferenceServer() {

@@ -17,7 +17,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     console.log(directory);
   }),
 
-  onUpdateOutputText: (callback) => ipcRenderer.on('updateOutputText', (event, lines) => {
-    document.getElementById('outputTextBox_textarea').value = lines.join('<br/>');
-  })
+  onUpdateOutputText: (callback) => ipcRenderer.on('updateOutputText', (event, value) => callback(value))
 });

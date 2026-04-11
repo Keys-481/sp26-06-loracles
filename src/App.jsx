@@ -8,6 +8,11 @@ import img_world from "./assets/world.png";
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
+window.electronAPI.onUpdateOutputText((value) => {
+  const outText = document.getElementById('outputTextBox_textarea');
+  outText.value = value;
+});
+
 function App() {
   const [scanState, setScanState] = useState(false);
 
