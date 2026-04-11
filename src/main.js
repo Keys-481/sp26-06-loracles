@@ -86,6 +86,14 @@ function killInferenceServer() {
   }
 }
 
+function cleanTempDir() {
+  const tempDir = path.join(app.getPath('userData'), 'temp');
+  if (!fs.existsSync(tempDir)) return;
+  for (const file of fs.readdirSync(tempDir)) {
+    fs.rmSync(path.join(tempDir, file), { force: true });
+  }
+}
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -158,9 +166,12 @@ app.whenReady().then(() => {
   });
 });
 
-// Kill the inference server on graceful exit.
+// Kill the inference server and clean up temp files on graceful exit.
 // For unexpected crashes the stdin pipe closure handles it (see _heartbeat in inference.py).
-app.on('before-quit', killInferenceServer);
+app.on('before-quit', () => {
+  killInferenceServer();
+  cleanTempDir();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
