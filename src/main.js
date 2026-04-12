@@ -50,7 +50,7 @@ async function ensurePythonSource() {
 }
 
 function spawnInferenceServer(modelsDir, cwd) {
-  console.log('Spawning inference server...')
+  console.log('Spawning inference server...');
 
   inferenceProcess = spawn(pyManager.pythonPath, [
     '-m', 'src.inference.inference',
