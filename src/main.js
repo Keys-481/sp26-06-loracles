@@ -56,6 +56,7 @@ function spawnInferenceServer(modelsDir, cwd) {
     '-m', 'src.inference.inference',
     '--models_dir', modelsDir,
     '--port', String(INFERENCE_PORT),
+    '--temp_dir', path.join(app.getPath('userData'), 'temp'),
   ], {
     cwd,  // project root on sys.path so 'src.inference...' imports resolve
     env: {
@@ -110,6 +111,14 @@ function killInferenceServer() {
   if (inferenceProcess && !inferenceProcess.killed) {
     inferenceProcess.kill('SIGTERM');
     inferenceProcess = null;
+  }
+}
+
+function cleanTempDir() {
+  const tempDir = path.join(app.getPath('userData'), 'temp');
+  if (!fs.existsSync(tempDir)) return;
+  for (const file of fs.readdirSync(tempDir)) {
+    fs.rmSync(path.join(tempDir, file), { force: true });
   }
 }
 
@@ -199,9 +208,12 @@ app.whenReady().then(() => {
   });
 });
 
-// Kill the inference server on graceful exit.
+// Kill the inference server and clean up temp files on graceful exit.
 // For unexpected crashes the stdin pipe closure handles it (see _heartbeat in inference.py).
-app.on('before-quit', killInferenceServer);
+app.on('before-quit', () => {
+  killInferenceServer();
+  cleanTempDir();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

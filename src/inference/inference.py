@@ -1,7 +1,7 @@
 import argparse
 import json
 import sys
-from datetime import date
+import uuid
 from pathlib import Path
 from threading import Thread, Event
 from typing import Dict, List
@@ -14,7 +14,9 @@ from src.inference.model_router import ModelRouter
 
 
 class InferenceServer:
-    def __init__(self, port: int | str, models_dir: str):
+    def __init__(self, port: int | str, models_dir: str, temp_dir: str):
+        self.temp_dir = Path(temp_dir)
+        self.temp_dir.mkdir(parents=True, exist_ok=True)
         self.model_router = ModelRouter(Path(models_dir))
         self.line_seg: LineSegmentationModel | None = None
         self.htr: HTRModel | None = None
@@ -89,12 +91,11 @@ class InferenceServer:
 
         outlist = []
         for output in outputs:
-            orig_path = Path(output.image_path)
-            filename = f'{orig_path}_{date.today()}.json'
+            filename = self.temp_dir / f'{uuid.uuid4()}.json'
             with open(filename, 'w') as outfile:
                 results = to_builtin(output)
                 json.dump(results, outfile)
-            outlist.append(filename)
+            outlist.append(str(filename))
         return outlist
 
     def get_model(self, model_name: str,
@@ -110,9 +111,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--models_dir', required=True, type=str, help='Path to model directory')
     parser.add_argument('--port', required=True, type=int, help='Port to bind to')
+    parser.add_argument('--temp_dir', required=True, type=str, help='Path for output JSON files')
     args = parser.parse_args()
 
-    server = InferenceServer(port=args.port, models_dir=args.models_dir)
+    server = InferenceServer(port=args.port, models_dir=args.models_dir, temp_dir=args.temp_dir)
     # Block until Electron closes the stdin pipe
     sys.stdin.read()
     server.shutdown()
