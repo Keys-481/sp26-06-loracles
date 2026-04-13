@@ -5,17 +5,25 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
-  openImage: () => ipcRenderer.send('chooseFile'),
-  // Load the image and fill the documentDisplay
-  openedFile: ipcRenderer.on('chosenFile', (event, base64) => {
-    document.getElementById("documentDisplay").src = `data:image/jpg;base64,${base64}`;
+  openFile: () => ipcRenderer.send('dialog:openFile'),
+
+  displayFile: ipcRenderer.on('display:displayFile', (event, imagePath, image) => {
+    document.getElementById('documentDisplay').src = `data:image/jpg;base64,${image}`;
+    ipcRenderer.send('inference:inferImage', imagePath);
   }),
 
-  // Load the file path and log it in the console
-  openFolder: () => ipcRenderer.send('chooseFolder'),
-  openedFolder: ipcRenderer.on('chosenFolder', (event, directory) => {
-    console.log(directory);
+  displayOutputText: ipcRenderer.on('display:displayText', (event, outputText) => {
+    document.getElementById('outputTextBox_textarea').value = outputText;
   }),
 
-  onUpdateOutputText: (callback) => ipcRenderer.on('updateOutputText', (event, value) => callback(value))
+  openDirectory: () => ipcRenderer.send('dialog:openDirectory'),
+
+  displayDirectory: ipcRenderer.on('display:displayDirectory', (event, directory) =>{
+    console.log("[info] opened directory:", directory);
+    ipcRenderer.send('inference:inferDirectory', directory);
+  }),
+
+  displayDirectoryText: ipcRenderer.on('display:displayDirectoryText', (event, inferenceResults) => {
+    console.log(inferenceResults);
+  }),
 });

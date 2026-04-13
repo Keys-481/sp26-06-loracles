@@ -5,9 +5,10 @@ class InferenceResult {
   /**
    * @type Annotation[]
    */
-  annotations;
+  #annotations;
   #filePath;
   #encoding;
+  #imagePath;
 
   /**
    * Set up the object so annotations can be loaded after init() is called
@@ -27,47 +28,73 @@ class InferenceResult {
    *
    * @param {*} callback function to run after file has been read
    */
-  async init(callback) {
-    let data;
+  async init() {
+    return new Promise(async (resolve, reject) => {
+      let data;
 
-    try {
-      data = await fs.readFile(this.#filePath, {encoding: this.#encoding});
-    } catch (err) {
-      return Promise.reject(err);
-    }
+      // Attempt to read from the JSON file
+      try {
+        data = await fs.readFile(this.#filePath, {encoding: this.#encoding});
+      } catch (err) {
+        return reject(err);
+      }
 
-    // Try to parse the JSON file into a JS object
-    // throws SyntaxError if its an invalid format for a JSON file
-    let json = JSON.parse(data);
-    let annots = new Array();
-    for (const a of json["annotations"]) {
-      // Get the minimum and maximum x and y values for each corner of the square
-      const x1 = Math.min(...(a[1][0].map(e => e[0])));
-      const y1 = Math.min(...(a[1][0].map(e => e[1])));
-      const x2 = Math.max(...(a[1][0].map(e => e[0])));
-      const y2 = Math.max(...(a[1][0].map(e => e[1])));
+      // Try to parse the JSON file into a JS object
+      // throws SyntaxError if its an invalid format for a JSON file
+      let json;
+      try {
+        json = JSON.parse(data);
+      } catch (err) {
+        reject(err);
+      }
 
-      // Add a new annotation to the list
-      annots.push(new Annotation(a[0], [x1, y1], [x2, y2]));
-    }
+      // Create an annotation object for each annotation in the JSON file
+      let annots = new Array();
+      for (const a of json["annotations"]) {
+        // Get the minimum and maximum x and y values for each corner of the square
+        const x1 = Math.min(...(a[1][0].map(e => e[0])));
+        const y1 = Math.min(...(a[1][0].map(e => e[1])));
+        const x2 = Math.max(...(a[1][0].map(e => e[0])));
+        const y2 = Math.max(...(a[1][0].map(e => e[1])));
 
-    this.annotations = annots;
-    callback.bind(this)();
+        // Add a new annotation to the list
+        annots.push(new Annotation(a[0], [x1, y1], [x2, y2]));
+      }
+
+      this.#imagePath = json["image_path"] ?? "";
+      this.#annotations = annots;
+      resolve(this);
+    });
   }
 
   /**
    * @returns {string[]} an array with every line in the annotations
    */
   allLines() {
-    if (!this.annotations) {
+    if (!this.#annotations) {
       throw new Error('InferenceResult must have init() called on it');
     }
     let lines = [];
-    for (let i = 0; i < this.annotations.length; i++) {
-      lines.push(this.annotations[i].line);
+    for (let i = 0; i < this.#annotations.length; i++) {
+      lines.push(this.#annotations[i].line);
     }
 
     return lines;
+  }
+
+  get imagePath() {
+    return this.#imagePath;
+  }
+
+  get annotations() {
+    return this.#annotations;
+  }
+
+  toString() {
+    if (!this.#annotations) {
+      return "bleh";
+    }
+    return `InferenceResult for ${this.#imagePath}`;
   }
 }
 
