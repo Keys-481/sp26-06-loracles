@@ -2,44 +2,74 @@ import {app, BrowserWindow, ipcMain, dialog} from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
-import { spawn } from 'node:child_process';
-import { Dealer } from 'zeromq';
+import {spawn} from 'node:child_process';
+import {Dealer} from 'zeromq';
 
 import InferenceResult from './parser/InferenceResult';
+import pyManager from './pymanager/PyManager';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
+// Intercept main-process stdout/stderr and forward to DevTools so output is
+// visible when running the installed app without an attached terminal.
+const _patch = (stream, level) => {
+  const original = stream.write.bind(stream);
+  stream.write = (chunk, ...args) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('console-output', level, chunk.toString());
+    }
+    return original(chunk, ...args);
+  };
+};
+_patch(process.stdout, 'log');
+_patch(process.stderr, 'warn');
+
 const INFERENCE_PORT = 5555;
 let inferenceProcess = null;
+let mainWindow = null;
 
 function ensureModelsDir() {
   let modelsDir = path.join(app.getPath('userData'), 'models');
-  fs.mkdirSync(modelsDir, { recursive: true });
+  fs.mkdirSync(modelsDir, {recursive: true});
   return modelsDir;
 }
 
-function spawnInferenceServer(modelsDir) {
-  let appRoot = app.getAppPath();
+// Ensures src/inference (and the src package marker) are on the real filesystem
+// so Python can import them. In dev, the source tree is already on disk.
+// When packaged, Node can read from app.asar but Python cannot, so we extract
+// the necessary files to userData and re-extract whenever the app version changes.
+async function ensurePythonSource() {
+  if (!app.isPackaged) {
+    return app.getAppPath();
+  }
+  // Python source is pre-copied into the app and extracted to app.asar.unpacked at build time.
+  return path.join(process.resourcesPath, 'app.asar.unpacked', 'resources', 'python');
+}
 
-  // 'python3' on macOS/Linux, 'python' on Windows
-  let python = process.platform === 'win32' ? 'python' : 'python3';
+function spawnInferenceServer(modelsDir, cwd) {
+  console.log('Spawning inference server...');
 
-  inferenceProcess = spawn(python, [
+  inferenceProcess = spawn(pyManager.pythonPath, [
     '-m', 'src.inference.inference',
     '--models_dir', modelsDir,
     '--port', String(INFERENCE_PORT),
+    '--temp_dir', path.join(app.getPath('userData'), 'temp'),
   ], {
-    cwd: appRoot,  // project root on sys.path so 'src.inference...' imports resolve
+    cwd,  // project root on sys.path so 'src.inference...' imports resolve
+    env: {
+      ...process.env,
+      PYTHONUNBUFFERED: '1',  // disable stdout block-buffering when writing to a pipe
+    },
     // stdin is kept open as a pipe — when Electron dies unexpectedly the OS
     // closes the write end, Python reads EOF in _heartbeat and self-terminates.
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 
-  inferenceProcess.stdout.on('data', (data) => process.stdout.write(`[inference] ${data}`));
-  inferenceProcess.stderr.on('data', (data) => process.stderr.write(`[inference] ${data}`));
+  inferenceProcess.stdout.pipe(process.stdout);
+  inferenceProcess.stderr.pipe(process.stderr);
   inferenceProcess.on('exit', (code, signal) => {
     console.log(`[inference] process exited (code=${code}, signal=${signal})`);
     inferenceProcess = null;
@@ -138,9 +168,17 @@ function killInferenceServer() {
   }
 }
 
+function cleanTempDir() {
+  const tempDir = path.join(app.getPath('userData'), 'temp');
+  if (!fs.existsSync(tempDir)) return;
+  for (const file of fs.readdirSync(tempDir)) {
+    fs.rmSync(path.join(tempDir, file), { force: true });
+  }
+}
+
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -164,7 +202,7 @@ const createWindow = () => {
 ipcMain.on('dialog:openFile', (event) => {
   const result = dialog.showOpenDialog({
     properties: ["openFile"],
-    filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff'] }]
+    filters: [{name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff']}]
   });
 
   result.then(({canceled, filePaths, bookmarks}) => {
@@ -211,10 +249,24 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   const modelsDir = ensureModelsDir();
-  spawnInferenceServer(modelsDir);
   // Give the Python process a moment to bind its ZMQ socket before connecting.
   // setTimeout(() => testInference().catch(console.error), 2000);
   createWindow();
+
+  // Initialize the venv and start the inference server in the background.
+  console.log('[pymanager] calling initialize...');
+  pyManager.initialize(modelsDir)
+    .then(() => {
+      console.log('[pymanager] initialized; ensuring Python source...');
+      return ensurePythonSource();
+    })
+    .then((cwd) => {
+      console.log(`[pymanager] cwd=${cwd}; spawning inference server...`);
+      spawnInferenceServer(modelsDir, cwd);
+    })
+    .catch((err) => {
+      console.error(`[pymanager ERROR] ${err.message}\n${err.stack}`);
+    });
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
@@ -225,9 +277,12 @@ app.whenReady().then(() => {
   });
 });
 
-// Kill the inference server on graceful exit.
+// Kill the inference server and clean up temp files on graceful exit.
 // For unexpected crashes the stdin pipe closure handles it (see _heartbeat in inference.py).
-app.on('before-quit', killInferenceServer);
+app.on('before-quit', () => {
+  killInferenceServer();
+  cleanTempDir();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -237,6 +292,3 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.

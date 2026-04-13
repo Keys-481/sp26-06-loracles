@@ -3,6 +3,12 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
+// Forward main-process stdout/stderr to DevTools console.
+ipcRenderer.on('console-output', (_event, level, text) => {
+  const fn = console[level] ?? console.log;
+  fn.call(console, text.trimEnd());
+});
+
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
   openFile: () => ipcRenderer.send('dialog:openFile'),

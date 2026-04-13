@@ -1,3 +1,6 @@
+# Build Artifacts
+resources
+
 # IDEs
 .idea/
 .vscode/
