@@ -12,6 +12,7 @@ import ImagePane from "./components/ImagePane";
 import TextPane from "./components/TextPane";
 import NavBar from "./components/NavBar";
 import SettingsDialog from "./components/SettingsDialog";
+import DownloadDialog from "./components/DownloadDialog";
 
 const theme = createTheme({
   palette: {
@@ -27,6 +28,7 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   useEffect(() => {
     // Single file selected — main sends { base64, path }
@@ -82,6 +84,7 @@ function App() {
           onOpenFile={() => window.electronAPI.openImage()}
           onOpenFolder={() => window.electronAPI.openFolder()}
           onSettings={() => setSettingsOpen(true)}
+          onDownload={() => setDownloadOpen(true)}
           onRunInference={handleRunInference}
           isRunning={isRunning}
           hasFiles={items.length > 0}
@@ -101,6 +104,7 @@ function App() {
           filename={current?.filename ?? ""}
         />
         <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        <DownloadDialog open={downloadOpen} onClose={() => setDownloadOpen(false)} items={items} />
       </Box>
     </ThemeProvider>
   );

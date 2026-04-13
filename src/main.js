@@ -1,6 +1,7 @@
 import {app, BrowserWindow, ipcMain, dialog} from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import started from 'electron-squirrel-startup';
 import { spawn } from 'node:child_process';
 import { Dealer } from 'zeromq';
@@ -17,6 +18,9 @@ const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.tiff']);
 
 let inferenceProcess = null;
 let selectedImagePaths = []; // populated by chooseFile / chooseFolder
+let selectedHtrModel = null;
+let selectedLineSegModel = null;
+let modelsDir = null;
 
 function ensureModelsDir() {
   let modelsDir = path.join(app.getPath('userData'), 'models');
@@ -72,7 +76,7 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 // Handle IPC request to select a single image file
@@ -110,6 +114,28 @@ ipcMain.on('chooseFolder', (event) => {
   });
 });
 
+// Handle IPC request to fetch available models from the inference server
+ipcMain.on('getAvailableModels', async (event) => {
+  const dealer = new Dealer();
+  dealer.connect(`tcp://localhost:${INFERENCE_PORT}`);
+  try {
+    await dealer.send(['', 'query_available_models', '']);
+    const [, , modelsPayload] = await dealer.receive();
+    event.reply('availableModels', JSON.parse(modelsPayload.toString()));
+  } catch (err) {
+    console.error('[inference] getAvailableModels failed:', err);
+    event.reply('availableModels', { HTR: [], LineSegmentation: [] });
+  } finally {
+    dealer.close();
+  }
+});
+
+// Handle IPC request to store the user's model selection
+ipcMain.on('saveModelSelection', (_event, { htr, lineSeg }) => {
+  selectedHtrModel = htr;
+  selectedLineSegModel = lineSeg;
+});
+
 // Handle IPC request to run inference on the current selection
 ipcMain.on('runInference', async (event) => {
   if (selectedImagePaths.length === 0) return;
@@ -123,8 +149,8 @@ ipcMain.on('runInference', async (event) => {
     const [, , modelsPayload] = await dealer.receive();
     const models = JSON.parse(modelsPayload.toString());
 
-    await dealer.send(['', 'htr_use', models.HTR[0]]);
-    await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
+    await dealer.send(['', 'htr_use', selectedHtrModel || models.HTR[0]]);
+    await dealer.send(['', 'line_seg_use', selectedLineSegModel || models.LineSegmentation[0]]);
 
     // Run inference — Python returns a list of JSON result file paths
     await dealer.send(['', 'infer', JSON.stringify(selectedImagePaths)]);
@@ -154,8 +180,70 @@ ipcMain.on('runInference', async (event) => {
   }
 });
 
+// Handle IPC request to pick a download destination folder
+ipcMain.on('chooseDownloadDir', (event) => {
+  dialog.showOpenDialog({ properties: ['openDirectory'] }).then(({ canceled, filePaths }) => {
+    if (!canceled) event.reply('downloadDirChosen', filePaths[0]);
+  });
+});
+
+// Handle IPC request to write text files to a destination folder
+ipcMain.on('downloadFiles', (event, { destDir, items }) => {
+  const written = [];
+  for (const { filePath, text } of items) {
+    const stem = path.basename(filePath, path.extname(filePath));
+    const id = crypto.randomBytes(3).toString('hex');
+    const outPath = path.join(destDir, `${stem}_${id}.txt`);
+    fs.writeFileSync(outPath, text, 'utf8');
+    written.push(path.basename(outPath));
+  }
+  event.reply('downloadComplete', written);
+});
+
+function extractZip(filePath, destDir) {
+  return new Promise((resolve, reject) => {
+    let proc;
+    if (process.platform === 'win32') {
+      proc = spawn('powershell.exe', [
+        '-NoProfile', '-NonInteractive', '-Command',
+        `Expand-Archive -LiteralPath "${filePath}" -DestinationPath "${destDir}" -Force`,
+      ]);
+    } else if (process.platform === 'darwin') {
+      // ditto handles ZIP64 (archives >4GB) and preserves macOS metadata
+      proc = spawn('ditto', ['-xk', filePath, destDir]);
+    } else {
+      // python3's zipfile module handles ZIP64; unzip (Info-ZIP 6.0) does not
+      proc = spawn('python3', ['-m', 'zipfile', '-e', filePath, destDir]);
+    }
+    let stderr = '';
+    proc.stderr?.on('data', (chunk) => { stderr += chunk.toString(); });
+    proc.on('close', (code) => {
+      // exit code 1 = success with warnings (e.g. extra metadata from macOS/Windows zips)
+      if (code === 0 || code === 1) resolve();
+      else reject(new Error(`Extraction exited with code ${code}${stderr ? `: ${stderr.trim()}` : ''}`));
+    });
+    proc.on('error', reject);
+  });
+}
+
+// Handle IPC request to import a model zip into the models directory
+ipcMain.on('importModel', async (event) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'Zip Archive', extensions: ['zip'] }],
+  });
+  if (canceled) return;
+  try {
+    await extractZip(filePaths[0], modelsDir);
+    event.reply('modelImported');
+  } catch (err) {
+    console.error('[importModel] extraction failed:', err);
+    event.reply('modelImportError', err.message);
+  }
+});
+
 app.whenReady().then(() => {
-  const modelsDir = ensureModelsDir();
+  modelsDir = ensureModelsDir();
   spawnInferenceServer(modelsDir);
   createWindow();
 

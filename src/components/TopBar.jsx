@@ -9,10 +9,11 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import DownloadIcon from "@mui/icons-material/Download";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SettingsIcon from "@mui/icons-material/Settings";
 
-function TopBar({ onOpenFile, onOpenFolder, onSettings, onRunInference, isRunning, hasFiles }) {
+function TopBar({ onOpenFile, onOpenFolder, onSettings, onDownload, onRunInference, isRunning, hasFiles }) {
   return (
     <AppBar position="static" elevation={0} color="inherit" sx={{ borderBottom: 1, borderColor: "divider" }}>
       <Toolbar variant="dense">
@@ -27,6 +28,13 @@ function TopBar({ onOpenFile, onOpenFolder, onSettings, onRunInference, isRunnin
           Folder
         </Button>
         <Box sx={{ flex: 1 }} />
+        <Tooltip title="Save Files">
+          <span>
+            <IconButton size="small" onClick={onDownload} disabled={!hasFiles}>
+              <DownloadIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
         <Tooltip title="Settings">
           <IconButton size="small" onClick={onSettings}>
             <SettingsIcon fontSize="small" />
