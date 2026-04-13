@@ -9,10 +9,19 @@ import ScanControls from "./ScanControls";
  * @param {*} param0.scanState The current state of the scanner
  * @param {*} param0.onRunInferenceButton Function to run when "Run Inference" button is clicked
  */
-function ScanControlBox({ scanState, onRunInferenceButton }) {
+function ScanControlBox({ scanState, onRunInferenceButton, onPrevImgButton, onNextImgButton }) {
   return (
     <div id="scanControlBox">
       <ScanControls/>
+      <div id="prevImgButtonBox">
+        <button
+          id="prevImgButton"
+          class="button"
+          onClick={onPrevImgButton}
+        >
+          {'Previous <<'}
+        </button>
+      </div>
       <div id="runInferenceButtonBox">
         <button
           id="runInferenceButton"
@@ -20,6 +29,15 @@ function ScanControlBox({ scanState, onRunInferenceButton }) {
           onClick={onRunInferenceButton}
         >
           { scanState ? 'Scanned' : 'Run Inference' }
+        </button>
+      </div>
+      <div id="nextImgButtonBox">
+        <button
+          id="nextImgButton"
+          class="button"
+          onClick={onNextImgButton}
+        >
+          {'Next >>'}
         </button>
       </div>
     </div>
