@@ -1,4 +1,4 @@
-import { useState, useSaveUpdate } from "react";
+import { useState } from "react";
 
 import img_file from "./assets/file.png";
 import img_folder from "./assets/folder.png";
@@ -11,7 +11,6 @@ import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
 function App() {
   const [scanState, setScanState] = useState(false);
-  
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>

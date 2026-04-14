@@ -2,7 +2,6 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
 import { contextBridge, ipcRenderer } from 'electron';
-import OutputFileSavePath from './components/LayoutGrid/OutputFileSavePath';
 
 // Forward main-process stdout/stderr to DevTools console.
 ipcRenderer.on('console-output', (_event, level, text) => {
