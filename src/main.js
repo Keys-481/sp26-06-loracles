@@ -77,35 +77,89 @@ function spawnInferenceServer(modelsDir, cwd) {
   });
 }
 
-async function testInference(folder) {
-  const dealer = new Dealer();
-  dealer.connect(`tcp://localhost:${INFERENCE_PORT}`);
+/**
+ * Run inference for one file
+ *
+ * @param {string} filePath The file path on the computer
+ * @param {number} port Port to use for 0mq
+ * @returns
+ */
+async function inferFile(filePath, port=INFERENCE_PORT) {
+  return new Promise(async (resolve, reject) => {
+    const dealer = new Dealer();
+    dealer.connect(`tcp://localhost:${port}`);
 
-  // Query available models
-  await dealer.send(['', 'query_available_models', '']);
-  const [, , modelsPayload] = await dealer.receive();
-  const models = JSON.parse(modelsPayload.toString());
-  console.log('[test] Available models:', models);
+    // Query available models
+    await dealer.send(['', 'query_available_models', '']);
+    const [, , modelsPayload] = await dealer.receive();
+    const models = JSON.parse(modelsPayload.toString());
+    console.log('[info] Available models:', models);
 
-  // Select first available model of each type
-  await dealer.send(['', 'htr_use', models.HTR[0]]);
-  await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
+    // Select first available model of each type
+    await dealer.send(['', 'htr_use', models.HTR[0]]);
+    await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
 
-  // Run inference on test assets
-  const assetsDir = folder;
-  const imgPaths = fs.readdirSync(assetsDir).map(f => path.join(assetsDir, f));
-  await dealer.send(['', 'infer', JSON.stringify(imgPaths)]);
-  const [, , resultPayload] = await dealer.receive();
-  const results = JSON.parse(resultPayload.toString());
-  console.log('[test] Inference results:', JSON.stringify(results, null, 2));
+    // Run inference on selected file path
+    await dealer.send(['', 'infer', JSON.stringify([filePath])]);
+    const [, , resultPayload] = await dealer.receive();
+    const results = JSON.parse(resultPayload.toString());
+    console.log('[info] Inference results:', JSON.stringify(results, null, 2));
 
-  for (const r of results) {
-    let i = new InferenceResult(r);
-    i.init(() => {
-      console.log(i.allLines().join("\n"));
+    // Close the dealer, we don't need it anymore
+    dealer.close();
+
+    // Parse the JSON file into an InferenceResult object
+    const inferenceRes = new InferenceResult(results[0]);
+    await inferenceRes.init().then((value) => {
+      resolve(inferenceRes);
     });
-  }
-  dealer.close();
+  });
+}
+
+/**
+ * Run inference for all files in the directory
+ *
+ * @param {string} filePath The file path on the computer
+ * @param {number} port Port to use for 0mq
+ * @returns
+ */
+async function inferDirectory(folder, port=INFERENCE_PORT) {
+  return new Promise(async (resolve, reject) => {
+    const dealer = new Dealer();
+    dealer.connect(`tcp://localhost:${port}`);
+
+    // Query available models
+    await dealer.send(['', 'query_available_models', '']);
+    const [, , modelsPayload] = await dealer.receive();
+    const models = JSON.parse(modelsPayload.toString());
+    console.log('[info] Available models:', models);
+
+    // Select first available model of each type
+    await dealer.send(['', 'htr_use', models.HTR[0]]);
+    await dealer.send(['', 'line_seg_use', models.LineSegmentation[0]]);
+
+    // Run inference on test assets
+    const assetsDir = folder;
+    const imgPaths = fs.readdirSync(assetsDir).map(f => path.join(assetsDir, f));
+    await dealer.send(['', 'infer', JSON.stringify(imgPaths)]);
+    const [, , resultPayload] = await dealer.receive();
+    const results = JSON.parse(resultPayload.toString());
+    console.log('[info] Inference results:', JSON.stringify(results, null, 2));
+
+    // Close the dealer, we don't need it anymore
+    dealer.close();
+
+    let inferenceRess = {};
+    await Promise.all(results.map(async (r) => {
+      const i = new InferenceResult(r);
+      await i.init().then((inited) => {
+        inferenceRess[inited.imagePath] = inited;
+      });
+    }));
+
+    console.log(inferenceRess);
+    resolve(inferenceRess);
+  });
 }
 
 function killInferenceServer() {
@@ -146,7 +200,7 @@ const createWindow = () => {
 };
 
 // Handle IPC request to select images
-ipcMain.on("chooseFile", (event, arg) => {
+ipcMain.on('dialog:openFile', (event) => {
   const result = dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff']}]
@@ -154,27 +208,42 @@ ipcMain.on("chooseFile", (event, arg) => {
 
   result.then(({canceled, filePaths, bookmarks}) => {
     const base64 = fs.readFileSync(filePaths[0]).toString('base64');
-    event.reply("chosenFile", base64);
+    event.reply('display:displayFile', filePaths[0], base64);
   });
 });
 
 /**
  * Opens a dialog to make the user select a directory for input images
  */
-ipcMain.on("chooseFolder", async (event) => {
+ipcMain.on("dialog:openDirectory", (event) => {
   const result = dialog.showOpenDialog({
     properties: ['openDirectory']
   });
 
   result.then(({canceled, filePaths, bookmarks}) => {
     if (!canceled) {
-      const p = filePaths[0];
-      const r = testInference(p);
-
-      event.reply("chosenFolder", p);
+      event.reply('display:displayDirectory', filePaths[0]);
     }
   });
 });
+
+ipcMain.on('inference:inferImage', (event, imagePath) => {
+  const result = inferFile(imagePath);
+
+  result.then((inferenceResult) => {
+    const outputText = inferenceResult.allLines().join("\n");
+    event.reply('display:displayText', outputText);
+  });
+});
+
+ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
+  const result = inferDirectory(imagePaths);
+
+  result.then((inferenceResults) => {
+    event.reply('display:displayDirectoryText', inferenceResults);
+  });
+});
+
 
 /**
  * Opens a dialog to make the user select a directory for
