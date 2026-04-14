@@ -32,4 +32,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   displayDirectoryText: ipcRenderer.on('display:displayDirectoryText', (event, inferenceResults) => {
     console.log(inferenceResults);
   }),
+
+  // Load file path for .txt file output for save button
+  openSavePath: () => ipcRenderer.send('dialog:chooseSaveFolder'),
+
+  openedSaveFolder: ipcRenderer.on('display:chosenSaveFolder', (event, directory) => {
+    console.log("[info] selected save directory: ", directory);
+    document.getElementById('outputSaveFilePath_textarea').value = directory;
+  }),
 });

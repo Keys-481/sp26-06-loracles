@@ -6,6 +6,7 @@ import img_settings from "./assets/settings.png";
 import img_world from "./assets/world.png";
 
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
+import OutputFileSavePath from "./components/LayoutGrid/OutputFileSavePath";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
 function App() {
@@ -50,6 +51,14 @@ function App() {
             labelText={"Output goes here"}
             scannedText={scanState ? 'this is scanned text' : ''}
           />
+          <OutputFileSavePath
+            labelText={"File save destination"}
+            outputPath={''}
+          />
+          <button type="button" class="button" onClick={() => {window.electronAPI.openSavePath();}}>
+            <img src={img_folder} alt="Icon" class="icon"></img>
+            <span>Output Folder</span>
+          </button>
         </div>
       </div>
     </div>

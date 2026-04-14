@@ -212,7 +212,7 @@ ipcMain.on('dialog:openFile', (event) => {
 });
 
 /**
- * Opens a dialog to make the user select a directory
+ * Opens a dialog to make the user select a directory for input images
  */
 ipcMain.on("dialog:openDirectory", (event) => {
   const result = dialog.showOpenDialog({
@@ -243,6 +243,22 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
   });
 });
 
+
+/**
+ * Opens a dialog to make the user select a directory for
+ * saving outputs
+ */
+ipcMain.on("dialog:chooseSaveFolder", (event) => {
+  const result = dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+
+  result.then(({canceled, filePaths, bookmarks}) => {
+    if (!canceled) {
+      event.reply('display:chosenSaveFolder', filePaths[0]);
+    }
+  });
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
