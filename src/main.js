@@ -7,6 +7,7 @@ import {Dealer} from 'zeromq';
 
 import InferenceResult from './parser/InferenceResult';
 import pyManager from './pymanager/PyManager';
+import { useState } from 'react';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -158,7 +159,7 @@ ipcMain.on("chooseFile", (event, arg) => {
 });
 
 /**
- * Opens a dialog to make the user select a directory
+ * Opens a dialog to make the user select a directory for input images
  */
 ipcMain.on("chooseFolder", async (event) => {
   const result = dialog.showOpenDialog({
@@ -171,6 +172,24 @@ ipcMain.on("chooseFolder", async (event) => {
       const r = testInference(p);
 
       event.reply("chosenFolder", p);
+    }
+  });
+});
+
+/**
+ * Opens a dialog to make the user select a directory for
+ * saving outputs
+ */
+ipcMain.on("chooseSaveFolder", async (event) => {
+  const result = dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+
+  result.then(({canceled, filePaths, bookmarks}) => {
+    if (!canceled) {
+      const p = filePaths[0];
+
+      event.reply("chosenSaveFolder", p);
     }
   });
 });
