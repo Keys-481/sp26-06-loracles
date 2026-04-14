@@ -35,10 +35,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   }),
 
   // Load file path for .txt file output for save button
-  openSavePath: () => ipcRenderer.send('chooseSaveFolder'),
-  openedFolder: ipcRenderer.on('chosenSaveFolder', (event, directory) => {
-    //document.getElementById(OutputFileSavePath).src = directory;
-    
-    console.log(directory);
+  openSavePath: () => ipcRenderer.send('dialog:chooseSaveFolder'),
+
+  openedSaveFolder: ipcRenderer.on('display:chosenSaveFolder', (event, directory) => {
+    console.log("[info] selected save directory: ", directory);
+    document.getElementById('outputSaveFilePath_textarea').value = directory;
   }),
 });

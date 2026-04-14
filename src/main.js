@@ -249,16 +249,14 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
  * Opens a dialog to make the user select a directory for
  * saving outputs
  */
-ipcMain.on("chooseSaveFolder", async (event) => {
+ipcMain.on("dialog:chooseSaveFolder", (event) => {
   const result = dialog.showOpenDialog({
     properties: ['openDirectory']
   });
 
   result.then(({canceled, filePaths, bookmarks}) => {
     if (!canceled) {
-      const p = filePaths[0];
-
-      event.reply("chosenSaveFolder", p);
+      event.reply('display:chosenSaveFolder', filePaths[0]);
     }
   });
 });
