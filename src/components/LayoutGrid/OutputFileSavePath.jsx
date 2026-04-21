@@ -1,7 +1,7 @@
 /**
  * React component for displaying the desired save path for the file
  * in a text box format.
- * 
+ *
  * Selecting the paired 'Output Folder' button will update the value
  * with the selected folder destination for the file to be saved.
  * @param {*} labelText Text for the attached label for the component

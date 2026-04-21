@@ -1,6 +1,8 @@
 import {app, BrowserWindow, ipcMain, dialog} from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
+import {fs as fsPromises} from 'node:fs/promises';
+
 import started from 'electron-squirrel-startup';
 import {spawn} from 'node:child_process';
 import {Dealer} from 'zeromq';
@@ -199,15 +201,23 @@ const createWindow = () => {
 };
 
 // Handle IPC request to select images
-ipcMain.on('dialog:openFile', (event) => {
-  const result = dialog.showOpenDialog({
-    properties: ["openFile"],
-    filters: [{name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff']}]
-  });
+ipcMain.handle('dialog:openFile', async (event) => {
+  return new Promise(async (resolve, reject) => {
+    const result = dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [{name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff']}]
+    });
 
-  result.then(({canceled, filePaths, bookmarks}) => {
-    const base64 = fs.readFileSync(filePaths[0]).toString('base64');
-    event.reply('display:displayFile', filePaths[0], base64);
+    result.then(({canceled, filePaths, bookmarks}) => {
+      if (!canceled) {
+        const base64 = fs.readFileSync(filePaths[0]).toString('base64');
+        const filePath = filePaths[0];
+        const basePath = path.basename(filePath);
+        resolve({filePath, basePath, base64});
+      } else {
+        resolve(null);
+      }
+    });
   });
 });
 
@@ -243,20 +253,35 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
   });
 });
 
+ipcMain.handle('save:saveResults', (event, filePath, fileName, content) => {
 
+  const result = fs.writeFile(path.join(filePath, fileName), content, {flag: 'w+'}, err => {
+    console.log(path.join(filePath, fileName));
+    if (err)
+      console.error(err);
+    else {
+      console.log(path.join(filePath, fileName));
+    }
+  });
+});
 /**
  * Opens a dialog to make the user select a directory for
  * saving outputs
  */
-ipcMain.on("dialog:chooseSaveFolder", (event) => {
-  const result = dialog.showOpenDialog({
-    properties: ['openDirectory']
-  });
+ipcMain.handle("dialog:chooseSaveFolder", async (event) => {
+  return new Promise(async (resolve, reject) => {
+    const result = dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
 
-  result.then(({canceled, filePaths, bookmarks}) => {
-    if (!canceled) {
-      event.reply('display:chosenSaveFolder', filePaths[0]);
-    }
+    result.then(({canceled, filePaths, _}) => {
+      // Folder was selected
+      if (!canceled)
+        resolve(filePaths[0]);
+      // Folder not selected, back out
+      else
+        resolve(null);
+    });
   });
 });
 
