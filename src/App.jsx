@@ -1,4 +1,5 @@
 import { useState } from "react";
+import path from 'node:path';
 
 import img_file from "./assets/file.png";
 import img_folder from "./assets/folder.png";
@@ -10,21 +11,48 @@ import OutputFileSavePath from "./components/LayoutGrid/OutputFileSavePath";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
 function App() {
+  // Text for OutputBox
+  const [outputText, setOutputText] = useState(undefined);
   const [scanState, setScanState] = useState(false);
-  const [savePathState, setSavePathState] = useState(null);
-  const [inputFileState, setInputFileState] = useState(null);
+  const [documentPath, setDocumentPath] = useState(undefined);
+  const [documentDirectory, setDocumentDirectory] = useState(undefined);
+  const [documentFilename, setDocumentFilename] = useState(undefined);
+
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
       <div class="parent">
         <div class="div1">
           <div class="buttonRow">
-            <button type="button" class="button" onClick={async () => {
-              const {filePath, basePath, base64} = await window.electronAPI.openFile();
-              document.getElementById('documentDisplay').src = `data:image/jpg;base64,${base64}`;
-              setInputFileState(basePath);
-              window.electronAPI.inferFile(filePath);
-            }}>
+            <button type="button" class="button" onClick={
+              async () => {
+                /** 
+                 * The resolved results are of the form α if a file was chosen or
+                 * β if the file selection was canceled.
+                 * 
+                 * α: {filePath, base64}
+                 * 
+                 * β: false
+                 */
+                const results = await window.electronAPI.openFile();
+
+                if (results !== false) { // Only proceed if open dialog wasn't canceled
+                  const {filePath, dirName, baseName, base64} = results;
+                  
+                  // Set the document directory and filename for future access.
+                  setDocumentPath(filePath);
+                  setDocumentDirectory(documentDirectory ?? dirName);
+                  setDocumentFilename(baseName);
+                  // Re-enable scanning, since its a new file
+                  setScanState(false);
+                  setOutputText(undefined);
+                  // Set the document display image
+                  document.getElementById('documentDisplay').src = `data:image/jpg;base64,${base64}`;
+
+                  // Run inference on the file path
+                }
+              }
+            }>
               <img src={img_file} alt="Icon" class="icon"></img>
               <span>File Select</span>
             </button>
@@ -49,43 +77,52 @@ function App() {
         </div>
         <div className="div3">
           <ScanControlBox
-            scanState={scanState}
-            onRunInferenceButton={() => setScanState(true)}
+            disable={documentPath === undefined || scanState === true}
+            onRunInferenceButton={
+              async () => {
+                // Prevent spam scanning
+                setScanState(true);
+                // Run inference
+                const results = await window.electronAPI.inferFile(documentPath);
+                // Set the output text
+                setOutputText(results);
+              }
+            }
           />
         </div>
         <div class="div4">
           <OutputTextBox
+            updateOutput={e => setOutputText(e.target.value)}
+            disable={documentPath === undefined || outputText === undefined}
             labelText={"Output goes here"}
-            scannedText={scanState ? 'this is scanned text' : ''}
+            scannedText={outputText ?? (scanState ? 'Please wait... Scanning' : 'Start the scan to see results')}
           />
-          <OutputFileSavePath
-            labelText={"File save destination"}
-            outputPath={savePathState ?? ''}
-          />
-          <button type="button" class="button" onClick={async () => {
-            // Open the dialog to select an output folder
-            const result = window.electronAPI.openSavePath();
+          <label class="label" id="outputPath">
+            Output path: {documentDirectory ?? '<no output path selected>'}
+          </label>
+          
+          
+          <button type="button" class="button" onClick={
+            async () => {
+              // Open the dialog to select an output folder
+              const result = window.electronAPI.openSavePath();
 
-            result.then((resolved) => {
-              console.log(resolved);
-              if (resolved === null) {
-                // Folder selection cancelled, do nothing
-              } else {
-                // Set save path
-                setSavePathState(resolved);
-                console.log("[info] selected save directory: ", resolved);
-                document.getElementById('outputSaveFilePath_textarea').value = resolved;
-              }
-            });
-          }}>
+              result.then((resolved) => {
+                if (resolved === null) {
+                  // Folder selection cancelled, do nothing
+                } else {
+                  // Set save path
+                  setDocumentDirectory(resolved);
+                }
+              });
+            }
+          }>
             <img src={img_folder} alt="Icon" class="icon"></img>
-            <span>Output Folder</span>
+            <span>Choose Output Folder</span>
           </button>
 
           <button type="button" class="button" onClick={async () => {
-            console.log(savePathState, inputFileState + '.txt', document.getElementById('outputTextBox_textarea').value);
-            const result = window.electronAPI.saveResults(savePathState, inputFileState + '.txt', document.getElementById('outputTextBox_textarea').value);
-            console.log(result);
+            const result = window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
           }}>
             <span>Save Results</span>
           </button>

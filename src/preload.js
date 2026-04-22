@@ -11,9 +11,10 @@ ipcRenderer.on('console-output', (_event, level, text) => {
 
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
+
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
 
-  inferFile: (imagePath) => ipcRenderer.send('inference:inferImage', imagePath),
+  inferFile: (imagePath) => ipcRenderer.invoke('inference:inferImage', imagePath),
 
   displayOutputText: ipcRenderer.on('display:displayText', (event, outputText) => {
     document.getElementById('outputTextBox_textarea').value = outputText;
