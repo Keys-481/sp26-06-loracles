@@ -30,7 +30,7 @@ function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNext
           disabled={disable}
           onClick={onRunInferenceButton}
         >
-          { false ? 'Scanned' : 'Run Inference' }
+          Run Inference
         </button>
       </div>
       <div id="nextImgButtonBox">

@@ -224,7 +224,7 @@ ipcMain.handle('dialog:openFile', async (event) => {
     result.then(({canceled, filePaths, bookmarks}) => {
       if (!canceled) { // α
         const filePath = filePaths[0];
-        const dirName = path.dirname(filePath)
+        const dirName = path.dirname(filePath);
         const baseName = path.basename(filePath);
         const base64 = fs.readFileSync(filePaths[0]).toString('base64');
 
@@ -259,8 +259,7 @@ ipcMain.handle('inference:inferImage', async (event, imagePath) => {
       const outputText = inferenceResult.allLines().join(EOL.EOL);
       resolve(outputText);
     });
-  })
-  
+  });
 });
 
 ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
@@ -273,11 +272,11 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
 
 /**
  * Writes the results to the specified directory
- * 
+ *
  * Uses fs to write a file to the file named "filename" at directory "directory".
  * If the file does not exist, creates a new one. In any casem gets write access for the file.
  * Then attempts to set contents of file to "content"
- * 
+ *
  * @returns Any errors
  */
 ipcMain.handle('save:saveResults', (event, directory, filename, content) => {
