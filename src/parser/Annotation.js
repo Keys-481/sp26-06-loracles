@@ -4,12 +4,18 @@ import ImageBounds from './ImageBounds';
  * Class representing a line of text bounded by a rectangle
  */
 class Annotation {
+  /**
+   * @type {String}
+   */
   #line;
+  /**
+   * @type {ImageBounds}
+   */
   #bounds;
 
   /**
    * Create an annotation
-   * @param {String} line - Line of text 
+   * @param {String} line - Line of text
    * @param {Number[]} nw - x and y of top left corner of bounding rectangle
    * @param {Number[]} se - x and y of bottom right corner of bounding rectangle
    */
