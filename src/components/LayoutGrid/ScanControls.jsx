@@ -1,17 +1,17 @@
 
 /**
+ * @todo Currently has no impact on project
+ *
  * React component for scan input controls. This will allow the user to adjust any
  * default values to instruct the model what to look for.
  *
- * TODO - Create parameters to auto-fill/select what the default detected values are.
- * TODO - fix syling import
+ * @todo Create parameters to auto-fill/select what the default detected values are.
+ * @todo fix syling import
+ * @todo have values which change and affect dropdown box selections
+ *
+ * @returns {JSX.Element} React element for this Scan Controls section
  */
-
-// import "./index.css";
-
 function ScanControls() {
-  // TODO have values which change and affect dropdown box selections
-
   return(
     <div id="scanControls">
       <p>

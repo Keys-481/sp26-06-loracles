@@ -5,10 +5,12 @@ import ScanControls from "./ScanControls";
  *
  * This will be where the model parameters and big scan button are placed.
  *
- * @param {Object} param0 Container for component props
- * @param {Boolean} param0.documentChosen whether or not a file has been loaded
- * @param {*} param0.scanState The current state of the scanner
- * @param {*} param0.onRunInferenceButton Function to run when "Run Inference" button is clicked
+ * @param {Object} param0 - Container for component props
+ * @param {Boolean} param0.disable - whether or not to disable the run inference button
+ * @param {function} param0.onRunInferenceButton - function to run when "Run Inference" button is clicked
+ * @param {function} param0.onPrevImgButton - function to run when previous image button is clicked
+ * @param {function} param0.onNextImgButton - function to run when previous image button is clicked
+ * @returns {JSX.Element} React element for this scan control box
  */
 function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNextImgButton }) {
   return (
