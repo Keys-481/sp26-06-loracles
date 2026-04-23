@@ -93,7 +93,7 @@ class ImageBounds {
   }
 
   /**
-   * Print the northwest to southeast corners of this ImageBounds
+   * Get a string representation of the northwest to southeast corners of this ImageBounds
    * @returns {String}
    */
   toString() {

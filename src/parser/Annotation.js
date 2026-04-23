@@ -59,7 +59,7 @@ class Annotation {
   }
 
   /**
-   * Print the bounds and line of this annotation
+   * Get a string representation of the bounds and line of this annotation
    * @returns {String}
    */
   toString() {
