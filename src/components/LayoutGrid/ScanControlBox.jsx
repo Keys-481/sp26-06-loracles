@@ -6,10 +6,11 @@ import ScanControls from "./ScanControls";
  * This will be where the model parameters and big scan button are placed.
  *
  * @param {Object} param0 Container for component props
+ * @param {Boolean} param0.documentChosen whether or not a file has been loaded
  * @param {*} param0.scanState The current state of the scanner
  * @param {*} param0.onRunInferenceButton Function to run when "Run Inference" button is clicked
  */
-function ScanControlBox({ scanState, onRunInferenceButton, onPrevImgButton, onNextImgButton }) {
+function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNextImgButton }) {
   return (
     <div id="scanControlBox">
       <ScanControls/>
@@ -26,9 +27,10 @@ function ScanControlBox({ scanState, onRunInferenceButton, onPrevImgButton, onNe
         <button
           id="runInferenceButton"
           class="button"
+          disabled={disable}
           onClick={onRunInferenceButton}
         >
-          { scanState ? 'Scanned' : 'Run Inference' }
+          Run Inference
         </button>
       </div>
       <div id="nextImgButtonBox">

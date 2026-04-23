@@ -1,6 +1,7 @@
 import {app, BrowserWindow, ipcMain, dialog} from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
+import EOL from 'node:os';
 import started from 'electron-squirrel-startup';
 import {spawn} from 'node:child_process';
 import {Dealer} from 'zeromq';
@@ -198,16 +199,40 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 };
 
-// Handle IPC request to select images
-ipcMain.on('dialog:openFile', (event) => {
-  const result = dialog.showOpenDialog({
-    properties: ["openFile"],
-    filters: [{name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff']}]
-  });
+/**
+ * 1. Opens the OpenDialog window, allowing user to select a file to open from their hard drive
+ * 2. Branching step:
+ *   α. User selects a file
+ *     3. File path saved to filePath
+ *     4. File dir saved to dirName
+ *     5. File name saved to baseName
+ *     6. File contents read synchronously
+ *     7. File contents in base64 saved to base64
+ *     8. Promise is resolved with {filePath, dirName, baseName, base64}
+ *   β. User cancels file selection
+ *     3. Promise is resolved with false
+ *
+ * @returns Promise as specified above
+ */
+ipcMain.handle('dialog:openFile', async (event) => {
+  return new Promise(async (resolve, reject) => {
+    const result = dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [{name: "Images", extensions: ["png", "jpg", "jpeg", 'tiff']}]
+    });
 
-  result.then(({canceled, filePaths, bookmarks}) => {
-    const base64 = fs.readFileSync(filePaths[0]).toString('base64');
-    event.reply('display:displayFile', filePaths[0], base64);
+    result.then(({canceled, filePaths, bookmarks}) => {
+      if (!canceled) { // α
+        const filePath = filePaths[0];
+        const dirName = path.dirname(filePath);
+        const baseName = path.basename(filePath);
+        const base64 = fs.readFileSync(filePaths[0]).toString('base64');
+
+        resolve({filePath, dirName, baseName, base64});
+      } else { // β
+        resolve(false);
+      }
+    });
   });
 });
 
@@ -226,12 +251,14 @@ ipcMain.on("dialog:openDirectory", (event) => {
   });
 });
 
-ipcMain.on('inference:inferImage', (event, imagePath) => {
-  const result = inferFile(imagePath);
+ipcMain.handle('inference:inferImage', async (event, imagePath) => {
+  return new Promise(async (resolve, reject) => {
+    const result = inferFile(imagePath);
 
-  result.then((inferenceResult) => {
-    const outputText = inferenceResult.allLines().join("\n");
-    event.reply('display:displayText', outputText);
+    result.then((inferenceResult) => {
+      const outputText = inferenceResult.allLines().join(EOL.EOL);
+      resolve(outputText);
+    });
   });
 });
 
@@ -243,20 +270,36 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
   });
 });
 
-
+/**
+ * Writes the results to the specified directory
+ *
+ * Uses fs to write a file to the file named "filename" at directory "directory".
+ * If the file does not exist, creates a new one. In any casem gets write access for the file.
+ * Then attempts to set contents of file to "content"
+ *
+ * @returns Any errors
+ */
+ipcMain.handle('save:saveResults', (event, directory, filename, content) => {
+  const result = fs.writeFile(path.join(directory, filename), content, {flag: 'w+'}, err => {return err;});
+});
 /**
  * Opens a dialog to make the user select a directory for
  * saving outputs
  */
-ipcMain.on("dialog:chooseSaveFolder", (event) => {
-  const result = dialog.showOpenDialog({
-    properties: ['openDirectory']
-  });
+ipcMain.handle("dialog:chooseSaveFolder", async (event) => {
+  return new Promise(async (resolve, reject) => {
+    const result = dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
 
-  result.then(({canceled, filePaths, bookmarks}) => {
-    if (!canceled) {
-      event.reply('display:chosenSaveFolder', filePaths[0]);
-    }
+    result.then(({canceled, filePaths, _}) => {
+      // Folder was selected
+      if (!canceled)
+        resolve(filePaths[0]);
+      // Folder not selected, back out
+      else
+        resolve(null);
+    });
   });
 });
 

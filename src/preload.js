@@ -11,12 +11,10 @@ ipcRenderer.on('console-output', (_event, level, text) => {
 
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
-  openFile: () => ipcRenderer.send('dialog:openFile'),
 
-  displayFile: ipcRenderer.on('display:displayFile', (event, imagePath, image) => {
-    document.getElementById('documentDisplay').src = `data:image/jpg;base64,${image}`;
-    ipcRenderer.send('inference:inferImage', imagePath);
-  }),
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+
+  inferFile: (imagePath) => ipcRenderer.invoke('inference:inferImage', imagePath),
 
   displayOutputText: ipcRenderer.on('display:displayText', (event, outputText) => {
     document.getElementById('outputTextBox_textarea').value = outputText;
@@ -34,10 +32,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   }),
 
   // Load file path for .txt file output for save button
-  openSavePath: () => ipcRenderer.send('dialog:chooseSaveFolder'),
+  openSavePath: () => ipcRenderer.invoke('dialog:chooseSaveFolder'),
 
-  openedSaveFolder: ipcRenderer.on('display:chosenSaveFolder', (event, directory) => {
-    console.log("[info] selected save directory: ", directory);
+  openedSaveFolder: () => ('display:chosenSaveFolder', (event, directory) => {
     document.getElementById('outputSaveFilePath_textarea').value = directory;
   }),
+
+  saveResults: (filePath, fileName, content) => ipcRenderer.invoke('save:saveResults', filePath, fileName, content)
 });
