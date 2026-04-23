@@ -1,7 +1,7 @@
 import ImagePoint from './ImagePoint';
 
 /**
- * Bounds of an image. Uses two ImagePoints for the top and bottom corner
+ * Class representing the Bounds of an image. Uses two ImagePoints for the top and bottom corner
  */
 class ImageBounds {
   /**
@@ -16,12 +16,12 @@ class ImageBounds {
   #southEast;
 
   /**
-   * Construct a new ImageBounds with the specified northwest and southeast corners.
+   * Create a new ImageBounds
    *
-   * nw and se can be Arrays of numbers or TypedArrays
+   * nw and se can be TypedArrays or Arrays of numbers
    *
-   * @param {number[]} nw Northwest corner point, where nw[0] is x and nw[1] is y
-   * @param {number[]} se Southeast corner point, where se[0] is x and se[1] is y
+   * @param {Number[]} nw - Northwest corner point, where nw[0] is x and nw[1] is y
+   * @param {Number[]} se - Southeast corner point, where se[0] is x and se[1] is y
    */
   constructor(nw, se) {
     this.#northWest = new ImagePoint(nw);
@@ -29,28 +29,32 @@ class ImageBounds {
   }
 
   /**
-   * @returns x value of the northwest corner
+   * Gets x value of the northwest corner
+   * @returns {Number} x value of the northwest corner
    */
   get x1() {
     return this.#northWest.x;
   }
 
   /**
-   * @returns y value of the northwest corner
+   * Gets y value of the northwest corner
+   * @returns {Number} y value of the northwest corner
    */
   get y1() {
     return this.#northWest.y;
   }
 
   /**
-   * @returns x value of the southeast corner
+   * Gets x value of the southeast corner
+   * @returns {Number} x value of the southeast corner
    */
   get x2() {
     return this.#southEast.x;
   }
 
   /**
-   * @returns y value of the southeast corner
+   * Gets y value of the southeast corner
+   * @returns {Number} y value of the southeast corner
    */
   get y2() {
     return this.#southEast.y;
@@ -58,6 +62,7 @@ class ImageBounds {
 
   /**
    * Sets x value of the northwest corner
+   * @param {Number} value - Value to set x of northwest corner to
    */
   set x1(value) {
     this.#northWest.x = value;
@@ -65,6 +70,7 @@ class ImageBounds {
 
   /**
    * Sets y value of the northwest corner
+   * @param {Number} value - Value to set y of northwest corner to
    */
   set y1(value) {
     this.#northWest.y = value;
@@ -72,6 +78,7 @@ class ImageBounds {
 
   /**
    * Sets x value of the southeast corner
+   * @param {Number} value - Value to set x of southeast corner to
    */
   set x2(value) {
     this.#southEast.x = value;
@@ -79,11 +86,16 @@ class ImageBounds {
 
   /**
    * Sets y value of the southeast corner
+   * @param {Number} value - Value to set y of southeast corner to
    */
   set y2(value) {
     this.#southEast.y = value;
   }
 
+  /**
+   * Print the northwest to southeast corners of this ImageBounds
+   * @returns {String}
+   */
   toString() {
     return `(${this.#northWest} -> ${this.#southEast})`;
   }
