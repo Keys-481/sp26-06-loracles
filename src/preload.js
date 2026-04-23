@@ -20,16 +20,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     document.getElementById('outputTextBox_textarea').value = outputText;
   }),
 
-  openDirectory: () => ipcRenderer.send('dialog:openDirectory'),
+  // openDirectory: () => ipcRenderer.send('dialog:openDirectory'),
 
-  displayDirectory: ipcRenderer.on('display:displayDirectory', (event, directory) =>{
-    console.log("[info] opened directory:", directory);
-    ipcRenderer.send('inference:inferDirectory', directory);
-  }),
+  // displayDirectory: ipcRenderer.on('display:displayDirectory', (event, directory) =>{
+  //   console.log("[info] opened directory:", directory);
+  //   ipcRenderer.send('inference:inferDirectory', directory);
+  // }),
 
-  displayDirectoryText: ipcRenderer.on('display:displayDirectoryText', (event, inferenceResults) => {
-    console.log(inferenceResults);
-  }),
+  // displayDirectoryText: ipcRenderer.on('display:displayDirectoryText', (event, inferenceResults) => {
+  //   console.log(inferenceResults);
+  // }),
 
   // Load file path for .txt file output for save button
   openSavePath: () => ipcRenderer.invoke('dialog:chooseSaveFolder'),

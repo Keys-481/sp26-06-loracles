@@ -54,7 +54,7 @@ function App() {
               <img src={img_file} alt="Icon" class="icon"></img>
               <span>File Select</span>
             </button>
-            <button type="button" class="button" onClick={async () => {window.electronAPI.openDirectory();}}>
+            <button type="button" class="button" onClick={async () => {}} disabled>
               <img src={img_folder} alt="Icon" class="icon"></img>
               <span>Folder Select</span>
             </button>
