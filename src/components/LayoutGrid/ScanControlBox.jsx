@@ -7,9 +7,9 @@ import ScanControls from "./ScanControls";
  *
  * @param {Object} param0 - Container for component props
  * @param {Boolean} param0.disable - whether or not to disable the run inference button
- * @param {function} param0.onRunInferenceButton - function to run when "Run Inference" button is clicked
- * @param {function} param0.onPrevImgButton - function to run when previous image button is clicked
- * @param {function} param0.onNextImgButton - function to run when previous image button is clicked
+ * @param {Function} param0.onRunInferenceButton - function to run when "Run Inference" button is clicked
+ * @param {Function} param0.onPrevImgButton - function to run when previous image button is clicked
+ * @param {Function} param0.onNextImgButton - function to run when previous image button is clicked
  * @returns {JSX.Element} React element for this scan control box
  */
 function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNextImgButton }) {

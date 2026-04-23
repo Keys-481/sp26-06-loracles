@@ -4,7 +4,7 @@
  * This will be where the text scanned from a document will be placed.
  *
  * @param {Object} param0 - Container for component props
- * @param {String} param0.updateOutput Function to run when textarea is edited
+ * @param {Function} param0.updateOutput Function to run when textarea is edited
  * @param {Boolean} param0.disable - whether or not to disable the box
  * @param {String} param0.labelText - Fills in the text of the label for the textarea
  * @param {String} [param0.placeholder=""] - Fills in the placeholder attribute of the textarea
