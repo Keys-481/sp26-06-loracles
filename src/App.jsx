@@ -8,14 +8,21 @@ import img_world from "./assets/world.png";
 import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
 import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
 
+/**
+ * Creates the main react element for this program
+ * @returns {JSX.Element} Main react element for this program
+ */
 function App() {
   // Text for OutputBox
   const [outputText, setOutputText] = useState(undefined);
+  // Boolean for whether or not the scan is running
   const [scanState, setScanState] = useState(false);
+  // Path of the input document
   const [documentPath, setDocumentPath] = useState(undefined);
+  // Directory of the input document
   const [documentDirectory, setDocumentDirectory] = useState(undefined);
+  // Name of the input document
   const [documentFilename, setDocumentFilename] = useState(undefined);
-
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
@@ -46,8 +53,6 @@ function App() {
                   setOutputText(undefined);
                   // Set the document display image
                   document.getElementById('documentDisplay').src = `data:image/jpg;base64,${base64}`;
-
-                  // Run inference on the file path
                 }
               }
             }>
@@ -118,7 +123,7 @@ function App() {
           </button>
 
           <button type="button" class="button" onClick={async () => {
-            const result = window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
+            window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
           }}>
             <span>Save Results</span>
           </button>
