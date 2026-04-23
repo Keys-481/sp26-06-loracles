@@ -1,10 +1,10 @@
-import {app, BrowserWindow, ipcMain, dialog} from 'electron';
-import path from 'node:path';
-import fs from 'node:fs';
-import EOL from 'node:os';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import started from 'electron-squirrel-startup';
-import {spawn} from 'node:child_process';
-import {Dealer} from 'zeromq';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import EOL from 'node:os';
+import { Dealer } from 'zeromq';
 
 import InferenceResult from './parser/InferenceResult';
 import pyManager from './pymanager/PyManager';

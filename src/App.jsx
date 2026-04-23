@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import img_file from "./assets/file.png";
-import img_folder from "./assets/folder.png";
-import img_settings from "./assets/settings.png";
-import img_world from "./assets/world.png";
+import OutputTextBox from './components/LayoutGrid/OutputTextBox';
+import ScanControlBox from './components/LayoutGrid/ScanControlBox';
 
-import OutputTextBox from "./components/LayoutGrid/OutputTextBox";
-import ScanControlBox from "./components/LayoutGrid/ScanControlBox";
+// Image files
+import img_file from './assets/file.png';
+import img_folder from './assets/folder.png';
+import img_settings from './assets/settings.png';
+import img_world from './assets/world.png';
+
+
 
 function App() {
   // Text for OutputBox

@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import path from 'node:path';
-import fse from 'fs-extra';
 import { spawn } from 'node:child_process';
+import fse from 'fs-extra';
 
 const PYTHON_VERSION = '3.13';
 const TORCH_VER = '2.11.0';

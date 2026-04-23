@@ -1,4 +1,4 @@
-import ScanControls from "./ScanControls";
+import ScanControls from './ScanControls';
 
 /**
  * React compoenent for the scanning controls of the UI.
