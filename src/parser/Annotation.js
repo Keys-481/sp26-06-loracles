@@ -5,16 +5,19 @@ import ImageBounds from './ImageBounds';
  */
 class Annotation {
   /**
-   * @type {String}
+   * @type String
    */
   #line;
   /**
-   * @type {ImageBounds}
+   * @type ImageBounds
    */
   #bounds;
 
   /**
    * Create an annotation
+   *
+   * nw and se can be TypedArrays or Arrays of numbers
+   *
    * @param {String} line - Line of text
    * @param {Number[]} nw - x and y of top left corner of bounding rectangle
    * @param {Number[]} se - x and y of bottom right corner of bounding rectangle
