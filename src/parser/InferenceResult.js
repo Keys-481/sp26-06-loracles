@@ -3,9 +3,9 @@ import Annotation from './Annotation';
 
 /**
  * A class representing an inference result, containing annotations
- * 
+ *
  * This is used to parse the JSON files created by the inference models.
- * 
+ *
  * Be sure to use init() to run the parser.
  */
 class InferenceResult {
