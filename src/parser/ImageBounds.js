@@ -6,12 +6,12 @@ import ImagePoint from './ImagePoint';
 class ImageBounds {
   /**
    * Top left corner
-   * @type ImagePoint
+   * @type {ImagePoint}
    */
   #northWest;
   /**
    * Bottom right corner
-   * @type ImagePoint
+   * @type {ImagePoint}
    */
   #southEast;
 
@@ -20,8 +20,8 @@ class ImageBounds {
    *
    * nw and se can be TypedArrays or Arrays of numbers
    *
-   * @param {Number[]} nw - Northwest corner point, where nw[0] is x and nw[1] is y
-   * @param {Number[]} se - Southeast corner point, where se[0] is x and se[1] is y
+   * @param {Number[]|Uint32Array} nw - Northwest corner point, where nw[0] is x and nw[1] is y
+   * @param {Number[]|Uint32Array} se - Southeast corner point, where se[0] is x and se[1] is y
    */
   constructor(nw, se) {
     this.#northWest = new ImagePoint(nw);

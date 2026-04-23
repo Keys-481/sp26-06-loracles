@@ -4,13 +4,13 @@
 class ImagePoint {
   /**
    * Length 2 Uint32Array to store x and y
-   * @type Uint32Array
+   * @type {Uint32Array}
    */
   #point;
 
   /**
    * Create an ImagePoint
-   * @param {Number[]} point - Array with x and y coordinates for this point
+   * @param {Number[]|Uint32Array} [point=[0, 0]] - Array with x and y coordinates for this point
    */
   constructor(point=[0, 0]) {
     this.#point = new Uint32Array(2);
