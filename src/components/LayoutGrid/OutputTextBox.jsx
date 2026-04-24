@@ -3,11 +3,13 @@
  *
  * This will be where the text scanned from a document will be placed.
  *
- * @param {Object} param0 Container for component props
- * @param {Boolean} param0.disable whether or not to disable the box
- * @param {*} param0.labelText Fills in the text of the label for the textarea
- * @param {string} [param0.placeholder=""] Fills in the placeholder attribute of the textarea
- * @param {string} [param0.scannedText=""] Fills in text scanned by the scanner
+ * @param {Object} param0 - Container for component props
+ * @param {Function} param0.updateOutput Function to run when textarea is edited
+ * @param {Boolean} param0.disable - whether or not to disable the box
+ * @param {String} param0.labelText - Fills in the text of the label for the textarea
+ * @param {String} [param0.placeholder=""] - Fills in the placeholder attribute of the textarea
+ * @param {String} [param0.scannedText=""] - Fills in text scanned by the scanner
+ * @returns {JSX.Element} Element for the output text box
  */
 function OutputTextBox({ updateOutput=()=>{}, disable, labelText, placeholder="", scannedText="" }) {
   // Ensure function props are of the right type
