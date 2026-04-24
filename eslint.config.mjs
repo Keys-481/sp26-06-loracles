@@ -1,9 +1,9 @@
-import js from "@eslint/js";
-import globals from "globals";
-import react from "eslint-plugin-react";
-import css from "@eslint/css";
-import { defineConfig } from "eslint/config";
-import stylistic from "@stylistic/eslint-plugin";
+import js from '@eslint/js';
+import globals from 'globals';
+import react from 'eslint-plugin-react';
+import css from '@eslint/css';
+import { defineConfig } from 'eslint/config';
+import stylistic from '@stylistic/eslint-plugin';
 
 export default defineConfig([
   {

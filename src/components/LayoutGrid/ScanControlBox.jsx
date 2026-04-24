@@ -1,4 +1,4 @@
-import ScanControls from "./ScanControls";
+import ScanControls from './ScanControls';
 
 /**
  * React compoenent for the scanning controls of the UI.
@@ -19,7 +19,7 @@ function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNext
       <div id="prevImgButtonBox">
         <button
           id="prevImgButton"
-          class="button"
+          className="button"
           onClick={onPrevImgButton}
         >
           {'Previous <<'}
@@ -28,7 +28,7 @@ function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNext
       <div id="runInferenceButtonBox">
         <button
           id="runInferenceButton"
-          class="button"
+          className="button"
           disabled={disable}
           onClick={onRunInferenceButton}
         >
@@ -38,7 +38,7 @@ function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNext
       <div id="nextImgButtonBox">
         <button
           id="nextImgButton"
-          class="button"
+          className="button"
           onClick={onNextImgButton}
         >
           {'Next >>'}
