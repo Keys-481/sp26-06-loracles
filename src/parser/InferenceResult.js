@@ -2,21 +2,38 @@ import fs from 'node:fs/promises';
 
 import Annotation from './Annotation';
 
+/**
+ * A class representing an inference result, containing annotations
+ *
+ * This is used to parse the JSON files created by the inference models.
+ *
+ * Be sure to use init() to run the parser.
+ */
 class InferenceResult {
   /**
-   * @type Annotation[]
+   * The annotations this stores.
+   * @type {?Annotation[]}
    */
   #annotations;
+  /**
+   * @type {!Pathlike}
+   */
   #filePath;
+  /**
+   * @type {?String}
+   */
   #encoding;
+  /**
+   * @type {?String}
+   */
   #imagePath;
 
   /**
-   * Set up the object so annotations can be loaded after init() is called
-   * @param {PathLike} filePath file path to read from
-   * @param {*} encoding encoding to read with
+   * Create a new InferenceResult with setup variables
+   * @param {PathLike} filePath file path to read JSON from
+   * @param {String} [encoding='utf8'] encoding to read with
    */
-  constructor(filePath, encoding = 'utf8') {
+  constructor(filePath, encoding='utf8') {
     this.#filePath = filePath;
     this.#encoding = encoding;
   }
@@ -25,9 +42,11 @@ class InferenceResult {
   /**
    * Parses the JSON file this object was constructed with.
    *
-   * When finished, results are stored in this.annotations
+   * When finished, results are stored in this.#annotations
+   * and image path is saved in this.#imagePath.
    *
-   * @param {*} callback function to run after file has been read
+   * Resolves on success, rejects on error
+   * @returns {Promise<InferenceResult>}
    */
   async init() {
     return new Promise(async (resolve, reject) => {
@@ -69,7 +88,8 @@ class InferenceResult {
   }
 
   /**
-   * @returns {string[]} an array with every line in the annotations
+   * Gets an array containing all of the lines in the annotations
+   * @returns {String[]} an array with every line in the annotations
    */
   allLines() {
     if (!this.#annotations) {
@@ -83,17 +103,29 @@ class InferenceResult {
     return lines;
   }
 
+  /**
+   * Gets the imagePath
+   * @returns {?String} the imagePath
+   */
   get imagePath() {
     return this.#imagePath;
   }
 
+  /**
+   * Gets the annotations array
+   * @returns {?Annotation[]} the annotations array
+   */
   get annotations() {
     return this.#annotations;
   }
 
+  /**
+   * Returns a string noting that this is the inference result for the specified image path
+   * @returns {String} a string noting that this is the inference result for the specified image path
+   */
   toString() {
     if (!this.#annotations) {
-      return "bleh";
+      return "Uninitialized InferenceResult";
     }
     return `InferenceResult for ${this.#imagePath}`;
   }
