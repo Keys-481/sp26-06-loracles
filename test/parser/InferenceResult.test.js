@@ -1,9 +1,9 @@
-import { expect, test } from "vitest";
+import { expect, test } from 'vitest';
 
-import InferenceResult from "../../src/parser/InferenceResult";
-import Annotation from "../../src/parser/Annotation";
-import ImageBounds from "../../src/parser/ImageBounds";
-import ImagePoint from "../../src/parser/ImagePoint";
+import InferenceResult from '../../src/parser/InferenceResult';
+import Annotation from '../../src/parser/Annotation';
+import ImageBounds from '../../src/parser/ImageBounds';
+import ImagePoint from '../../src/parser/ImagePoint';
 
 test("ImagePoint valid", () => {
   const x = 0;

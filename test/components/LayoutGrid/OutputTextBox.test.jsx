@@ -1,7 +1,7 @@
-import { expect, test } from "vitest";
-import { render } from "@testing-library/react";
+import { expect, test } from 'vitest';
+import { render } from '@testing-library/react';
 
-import OutputTextBox from "../../../src/components/LayoutGrid/OutputTextBox";
+import OutputTextBox from '../../../src/components/LayoutGrid/OutputTextBox';
 
 
 // Check labelText inputs

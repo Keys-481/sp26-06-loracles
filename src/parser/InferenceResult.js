@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+
 import Annotation from './Annotation';
 
 class InferenceResult {
