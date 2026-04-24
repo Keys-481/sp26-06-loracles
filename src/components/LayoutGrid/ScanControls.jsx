@@ -15,7 +15,7 @@ function ScanControls() {
   return(
     <div id="scanControls">
       <p>
-        <label for="language">Document language:</label>
+        <label htmlFor="language">Document language:</label>
         <select name="language" id="language">
           <option value="Belarusian">Belarusian</option>
           <option value="Bulgarian">Bulgarian</option>
@@ -25,7 +25,7 @@ function ScanControls() {
         </select>
       </p>
       <p>
-        <label for="columns">Number of Columns:</label>
+        <label htmlFor="columns">Number of Columns:</label>
         <select name="columns" id="columns">
           <option value="1">1</option>
           <option value="2">2</option>
@@ -33,7 +33,7 @@ function ScanControls() {
         </select>
       </p>
       <p>
-        <label for="columns">Additional Parameters:</label>
+        <label htmlFor="columns">Additional Parameters:</label>
         <select name="params" id="params">
           <option value="1">1</option>
           <option value="2">2</option>

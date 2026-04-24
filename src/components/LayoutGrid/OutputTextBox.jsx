@@ -9,7 +9,7 @@
  * @param {string} [param0.placeholder=""] Fills in the placeholder attribute of the textarea
  * @param {string} [param0.scannedText=""] Fills in text scanned by the scanner
  */
-function OutputTextBox({ updateOutput, disable, labelText, placeholder="", scannedText="" }) {
+function OutputTextBox({ updateOutput=()=>{}, disable, labelText, placeholder="", scannedText="" }) {
   // Ensure function props are of the right type
   if (typeof labelText !== "string")
     throw new TypeError(`Expected a string, got ${typeof labelText}`);
@@ -22,7 +22,7 @@ function OutputTextBox({ updateOutput, disable, labelText, placeholder="", scann
 
   return(
     <div id="outputTextBox">
-      <label for="outputTextBox_textarea">{labelText}</label>
+      <label htmlFor="outputTextBox_textarea">{labelText}</label>
       <br/>
       <textarea id="outputTextBox_textarea"
         disabled={disable}

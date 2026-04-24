@@ -19,10 +19,10 @@ function App() {
 
   return (
     <div style={{ padding: '5px', fontFamily: 'Arial, sans-serif' }}>
-      <div class="parent">
-        <div class="div1">
-          <div class="buttonRow">
-            <button type="button" class="button" onClick={
+      <div className="parent">
+        <div className="div1">
+          <div className="buttonRow">
+            <button type="button" className="button" onClick={
               async () => {
                 /**
                  * The resolved results are of the form α if a file was chosen or
@@ -51,19 +51,20 @@ function App() {
                 }
               }
             }>
-              <img src={img_file} alt="Icon" class="icon"></img>
+              <img src={img_file} alt="Icon" className="icon"></img>
               <span>File Select</span>
             </button>
-            <button type="button" class="button" onClick={async () => {}} disabled>
-              <img src={img_folder} alt="Icon" class="icon"></img>
+            <button type="button" className="button" onClick={async () => {}} disabled>
+              <img src={img_folder} alt="Icon" className="icon"></img>
+
               <span>Folder Select</span>
             </button>
-            <button type="button" class="button" onClick={() => {}}>
-              <img src={img_settings} alt="Icon" class="icon"></img>
+            <button type="button" className="button" onClick={() => {}}>
+              <img src={img_settings} alt="Icon" className="icon"></img>
               <span>Settings</span>
             </button>
-            <button type="button" class="button" onClick={() => {}}>
-              <img src={img_world} alt="Icon" class="icon"></img>
+            <button type="button" className="button" onClick={() => {}}>
+              <img src={img_world} alt="Icon" className="icon"></img>
               <span>Language</span>
             </button>
           </div>
@@ -88,17 +89,17 @@ function App() {
             }
           />
         </div>
-        <div class="div4">
+        <div className="div4">
           <OutputTextBox
             updateOutput={e => setOutputText(e.target.value)}
             disable={documentPath === undefined || outputText === undefined}
             labelText={"Output goes here"}
             scannedText={outputText ?? (scanState ? 'Please wait... Scanning' : 'Start the scan to see results')}
           />
-          <label class="label" id="outputPath">
+          <label className="label" id="outputPath">
             Output path: {documentDirectory ?? '<no output path selected>'}
           </label>
-          <button type="button" class="button" onClick={
+          <button type="button" className="button" onClick={
             async () => {
               // Open the dialog to select an output folder
               const result = window.electronAPI.openSavePath();
@@ -113,11 +114,11 @@ function App() {
               });
             }
           }>
-            <img src={img_folder} alt="Icon" class="icon"></img>
+            <img src={img_folder} alt="Icon" className="icon"></img>
             <span>Choose Output Folder</span>
           </button>
 
-          <button type="button" class="button" onClick={async () => {
+          <button type="button" className="button" onClick={async () => {
             const result = window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
           }}>
             <span>Save Results</span>
