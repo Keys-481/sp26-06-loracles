@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 import uuid
+import warnings
 from pathlib import Path
 from threading import Thread, Event
 from typing import Dict, List
@@ -24,7 +25,7 @@ class InferenceServer:
         self.ctx = zmq.Context()
         self.router = self.ctx.socket(zmq.ROUTER)
         self.router.bind(f"tcp://*:{port}")
-        print(f'Router listening on port {port}')
+        print(f'[inference] Router listening on port {port}')
 
         self.is_dead = Event()
         self._loop_thread = Thread(target=self._loop, daemon=False)
@@ -37,7 +38,7 @@ class InferenceServer:
         self._loop_thread.join()
 
     def _loop(self):
-        print('Inference loop started')
+        print('[inference] Inference loop started')
         while not self.is_dead.is_set():
             try:
                 identifier, _, topic, payload = self.router.recv_multipart()
@@ -67,14 +68,14 @@ class InferenceServer:
                 case 'kill':
                     self.is_dead.set()
                 case _:
-                    print(f'Got payload {payload} on topic {topic} from {identifier}')
+                    warnings.warn(f'[inference] Got payload {payload} on topic {topic} from {identifier}')
         if not self.ctx.closed:
             self.ctx.destroy()
-        print('Inference loop ended')
+        print('[inference] Inference loop ended')
 
     def query_available_models(self) -> Dict[str, List[str]]:
         self.model_router.update_models()
-        print(f'models found: {self.model_router.models}')
+        print(f'[inference] Models found: {self.model_router.models}')
         available_models = {'HTR': [], 'LineSegmentation': []}
         for model in self.model_router.models:
             if issubclass(self.model_router.models[model], HTRModel):
@@ -84,19 +85,23 @@ class InferenceServer:
         return available_models
 
     def infer(self, img_paths: List[str]) -> List[str]:
-        assert self.line_seg is not None
-        assert self.htr is not None
-        polygons = self.line_seg(image_paths=img_paths)
-        outputs = self.htr(image_paths=img_paths, polygons=polygons)
+        try:
+            assert self.line_seg is not None
+            assert self.htr is not None
+            polygons = self.line_seg(image_paths=img_paths)
+            outputs = self.htr(image_paths=img_paths, polygons=polygons)
 
-        outlist = []
-        for output in outputs:
-            filename = self.temp_dir / f'{uuid.uuid4()}.json'
-            with open(filename, 'w') as outfile:
-                results = to_builtin(output)
-                json.dump(results, outfile)
-            outlist.append(str(filename))
-        return outlist
+            outlist = []
+            for output in outputs:
+                filename = self.temp_dir / f'{uuid.uuid4()}.json'
+                with open(filename, 'w') as outfile:
+                    results = to_builtin(output)
+                    json.dump(results, outfile)
+                outlist.append(str(filename))
+            return outlist
+        except Exception as e:
+            print(f'[inference] Inference error: {e}')
+            return []
 
     def get_model(self, model_name: str,
                   model_type: type[HTRModel] | type[LineSegmentationModel]) -> HTRModel | LineSegmentationModel | None:
@@ -104,7 +109,7 @@ class InferenceServer:
             model = self.model_router.models[model_name]
             return model() if issubclass(model, model_type) else None
         except KeyError as e:
-            print(f'No model found for model_name={model_name}: {e}')
+            print(f'[inference] No model found for model_name={model_name}: {e}')
 
 
 if __name__ == "__main__":
