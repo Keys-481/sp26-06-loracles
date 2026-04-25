@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import time
 import uuid
 import warnings
 from pathlib import Path
@@ -119,7 +120,23 @@ if __name__ == "__main__":
     parser.add_argument('--temp_dir', required=True, type=str, help='Path for output JSON files')
     args = parser.parse_args()
 
-    server = InferenceServer(port=args.port, models_dir=args.models_dir, temp_dir=args.temp_dir)
-    # Block until Electron closes the stdin pipe
-    sys.stdin.read()
-    server.shutdown()
+    stdin_closed = Event()
+
+    def _watch_stdin():
+        sys.stdin.read()
+        stdin_closed.set()
+
+    Thread(target=_watch_stdin, daemon=True).start()
+
+    server = None
+    while not stdin_closed.is_set():
+        server = InferenceServer(port=args.port, models_dir=args.models_dir, temp_dir=args.temp_dir)
+        while not stdin_closed.is_set() and server._loop_thread.is_alive():
+            server._loop_thread.join(timeout=0.5)
+        if stdin_closed.is_set() or server.is_dead.is_set():
+            break
+        print('[inference] Server died unexpectedly, rebooting...')
+        time.sleep(1)
+
+    if server is not None:
+        server.shutdown()
