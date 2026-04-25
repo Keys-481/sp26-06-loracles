@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ScanControls from "./ScanControls";
+import ModelControls from "./ModelControls";
 
 /**
  * React compoenent for the scanning controls of the UI.
@@ -16,7 +16,7 @@ import ScanControls from "./ScanControls";
 function ScanControlBox({ scanState, onRunInferenceButton }) {
   return (
     <Box id="scanControlBox" sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-      <ScanControls/>
+      <ModelControls/>
       <Box id="runInferenceButtonBox">
         <Button
           id="runInferenceButton"

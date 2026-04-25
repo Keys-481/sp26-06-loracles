@@ -3,6 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import AboutButton from "./AboutButton";
 
 function NavBar({ currentIndex, total, onPrev, onNext, filename }) {
   return (
@@ -16,7 +17,7 @@ function NavBar({ currentIndex, total, onPrev, onNext, filename }) {
       <IconButton size="small" disabled={currentIndex >= total - 1} onClick={onNext}>
         <ChevronRightIcon fontSize="small" />
       </IconButton>
-      {filename && (
+      {filename ? (
         <Typography
           variant="caption"
           color="text.secondary"
@@ -24,7 +25,10 @@ function NavBar({ currentIndex, total, onPrev, onNext, filename }) {
         >
           {filename}
         </Typography>
+      ) : (
+        <Box sx={{ flex: 1 }} />
       )}
+      <AboutButton />
     </Box>
   );
 }

@@ -12,7 +12,7 @@ import Select from "@mui/material/Select";
  *
  * TODO - Create parameters to auto-fill/select what the default detected values are.
  */
-function ScanControls() {
+function ModelControls() {
   const [htrModels, setHtrModels] = useState([]);
   const [lineSegModels, setLineSegModels] = useState([]);
   const [selectedHtr, setSelectedHtr] = useState('');
@@ -100,4 +100,4 @@ function ScanControls() {
   );
 }
 
-export default ScanControls;
+export default ModelControls;
