@@ -1,11 +1,12 @@
 #sdp {
     position: relative;
-    margin: 10px;
+    margin: 5px;
 }
 #sdp img {
     width: 80px;
     cursor: pointer;
     display: block;
+    border-radius: 6px;
 }
 #sdp > div {
     background-color: #0033A0;
@@ -21,7 +22,7 @@
     z-index: 1300;
     white-space: nowrap;
 }
-#sdp > div.visible {
+#sdp:hover > div {
     visibility: revert;
 }
 #sdp a {

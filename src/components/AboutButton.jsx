@@ -1,20 +1,13 @@
-import { useState } from "react";
 import "./AboutButton.css";
 
 function AboutButton() {
-  const [visible, setVisible] = useState(false);
-
   return (
     <div id="sdp">
       <img
         src="src/assets/sdp-logo.png"
         alt="senior design project logo"
-        onMouseOver={() => setVisible(true)}
       />
-      <div
-        className={visible ? "visible" : ""}
-        onMouseLeave={() => setVisible(false)}
-      >
+      <div>
         This website was created for a<br />
         Boise State University<br />
         Computer Science Senior Design Project by
