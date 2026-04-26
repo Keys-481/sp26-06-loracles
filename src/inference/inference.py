@@ -49,23 +49,39 @@ class InferenceServer:
 
             match topic:
                 case 'query_available_models':
-                    available_models = json.dumps(self.query_available_models()).encode()
-                    self.router.send_multipart([identifier, b'', topic.encode(), available_models])
+                    try:
+                        available_models = json.dumps(self.query_available_models()).encode()
+                        self.router.send_multipart([identifier, b'', topic.encode(), available_models])
+                    except Exception as err:
+                        warnings.warn(f"[inference] Failed to find available models: {err}")
+                        self.router.send_multipart([identifier, b'', topic.encode(), json.dumps(None).encode()])
                 case 'htr_use':
-                    self.htr = self.get_model(model_name=payload.decode(), model_type=HTRModel)
+                    try:
+                        self.htr = self.get_model(model_name=payload.decode(), model_type=HTRModel)
+                    except Exception as err:
+                        warnings.warn(f"[inference] Failed to load HTR model '{payload.decode()}': {err}")
                 case 'line_seg_use':
-                    self.line_seg = self.get_model(model_name=payload.decode(), model_type=LineSegmentationModel)
+                    try:
+                        self.line_seg = self.get_model(model_name=payload.decode(), model_type=LineSegmentationModel)
+                    except Exception as err:
+                        warnings.warn(f"[inference] Failed to load Line Segmentation model '{payload.decode()}': {err}")
                 case 'infer':
                     if self.htr is None or self.line_seg is None:
-                        raise RuntimeError('HTR or LineSegmentation model not available')
-
-                    img_paths = json.loads(payload.decode())
-                    self.router.send_multipart([
-                        identifier,
-                        b'',
-                        topic.encode(),
-                        json.dumps(self.infer(img_paths)).encode()
-                    ])
+                        warnings.warn('HTR or LineSegmentation model not available')
+                        self.router.send_multipart([
+                            identifier,
+                            b'',
+                            topic.encode(),
+                            json.dumps(None).encode(),
+                        ])
+                    else:
+                        img_paths = json.loads(payload.decode())
+                        self.router.send_multipart([
+                            identifier,
+                            b'',
+                            topic.encode(),
+                            json.dumps(self.infer(img_paths)).encode()
+                        ])
                 case 'kill':
                     self.is_dead.set()
                 case _:
@@ -120,23 +136,28 @@ if __name__ == "__main__":
     parser.add_argument('--temp_dir', required=True, type=str, help='Path for output JSON files')
     args = parser.parse_args()
 
+    server = InferenceServer(port=args.port, models_dir=args.models_dir, temp_dir=args.temp_dir)
+
+    # Set up daemon thread to watch pipe
     stdin_closed = Event()
 
-    def _watch_stdin():
+
+    def watch_stdin():
         sys.stdin.read()
         stdin_closed.set()
 
-    Thread(target=_watch_stdin, daemon=True).start()
 
-    server = None
+    Thread(target=watch_stdin, daemon=True).start()
+
+    # Loop to recover server on unexpected death, so long as the pipe is open
     while not stdin_closed.is_set():
-        server = InferenceServer(port=args.port, models_dir=args.models_dir, temp_dir=args.temp_dir)
-        while not stdin_closed.is_set() and server._loop_thread.is_alive():
-            server._loop_thread.join(timeout=0.5)
-        if stdin_closed.is_set() or server.is_dead.is_set():
-            break
-        print('[inference] Server died unexpectedly, rebooting...')
-        time.sleep(1)
-
-    if server is not None:
-        server.shutdown()
+        try:
+            server._loop_thread.join()
+            if not stdin_closed.is_set():
+                raise RuntimeError('Server died unexpectedly')
+        except Exception as e:
+            print(f'[inference] {e}')
+        finally:
+            print('[inference] Restarting server...')
+            server = InferenceServer(port=args.port, models_dir=args.models_dir, temp_dir=args.temp_dir)
+    server.shutdown()
