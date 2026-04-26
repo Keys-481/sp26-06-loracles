@@ -8,7 +8,8 @@ import img_file from './assets/file.png';
 import img_folder from './assets/folder.png';
 import img_settings from './assets/settings.png';
 import img_world from './assets/world.png';
-
+import AboutSDP from './components/AboutSDP.jsx';
+import AboutLTU from './components/AboutLTU.jsx';
 
 
 /**
@@ -130,6 +131,12 @@ function App() {
           }}>
             <span>Save Results</span>
           </button>
+          <div id='sdpBox'>
+            <AboutSDP></AboutSDP>
+          </div>
+          <div id='ltuBox'>
+            <AboutLTU></AboutLTU>
+          </div>
         </div>
       </div>
     </div>
