@@ -38,28 +38,28 @@ class TestPolygon:
 class TestLineSegmentationOutput:
 
     def test_create_empty(self):
-        output = LineSegmentationOutput(polygons=[])
+        output = LineSegmentationOutput(polygons=[], image_path="")
         assert output.polygons == []
 
     def test_create_with_polygon(self):
         poly = Polygon(points=[PolygonPoint(0, 0), PolygonPoint(1, 1)])
-        output = LineSegmentationOutput(polygons=[poly])
+        output = LineSegmentationOutput(polygons=[poly], image_path="")
         assert len(output.polygons) == 1
         assert output.polygons[0] is poly
 
     def test_create_with_multiple_polygons(self):
         polys = [Polygon(points=[PolygonPoint(i, i)]) for i in range(3)]
-        output = LineSegmentationOutput(polygons=polys)
+        output = LineSegmentationOutput(polygons=polys, image_path="")
         assert len(output.polygons) == 3
 
     def test_rejects_non_polygon(self):
         with pytest.raises(TypeError):
-            LineSegmentationOutput(polygons=["not a polygon"])
+            LineSegmentationOutput(polygons=["not a polygon"], image_path="")
 
     def test_rejects_mixed_list(self):
         poly = Polygon(points=[])
         with pytest.raises(TypeError):
-            LineSegmentationOutput(polygons=[poly, "bad"])
+            LineSegmentationOutput(polygons=[poly, "bad"], image_path="")
 
 
 class TestTextAnnotation:
@@ -85,28 +85,28 @@ class TestTextAnnotation:
 class TestTextRecognitionOutput:
 
     def test_create_empty(self):
-        output = TextRecognitionOutput(annotations=[])
+        output = TextRecognitionOutput(annotations=[], image_path="")
         assert output.annotations == []
 
     def test_create_with_annotation(self):
         poly = Polygon(points=[PolygonPoint(0, 0)])
         ann = TextAnnotation(text="line", polygon=poly)
-        output = TextRecognitionOutput(annotations=[ann])
+        output = TextRecognitionOutput(annotations=[ann], image_path="")
         assert len(output.annotations) == 1
         assert output.annotations[0] is ann
 
     def test_create_with_multiple_annotations(self):
         poly = Polygon(points=[PolygonPoint(0, 0)])
         anns = [TextAnnotation(text=str(i), polygon=poly) for i in range(3)]
-        output = TextRecognitionOutput(annotations=anns)
+        output = TextRecognitionOutput(annotations=anns, image_path="")
         assert len(output.annotations) == 3
 
     def test_rejects_non_annotation(self):
         with pytest.raises(TypeError):
-            TextRecognitionOutput(annotations=["not an annotation"])
+            TextRecognitionOutput(annotations=["not an annotation"], image_path="")
 
     def test_rejects_mixed_list(self):
         poly = Polygon(points=[])
         ann = TextAnnotation(text="ok", polygon=poly)
         with pytest.raises(TypeError):
-            TextRecognitionOutput(annotations=[ann, "bad"])
+            TextRecognitionOutput(annotations=[ann, "bad"], image_path="")

@@ -82,7 +82,7 @@ class TestLineSegmentationModel:
             def advanced_user_options(self): return None
 
             def __call__(self, images: list[np.ndarray]) -> LineSegmentationOutput:
-                return LineSegmentationOutput(polygons=[])
+                return LineSegmentationOutput(polygons=[], image_path="")
 
         model = Concrete()
         assert isinstance(model, LineSegmentationModel)
@@ -103,7 +103,7 @@ class TestLineSegmentationModel:
             def advanced_user_options(self): return None
 
             def __call__(self, images: list[np.ndarray]) -> LineSegmentationOutput:
-                return LineSegmentationOutput(polygons=[])
+                return LineSegmentationOutput(polygons=[], image_path="")
 
         output = Concrete()(images=[])
         assert isinstance(output, LineSegmentationOutput)
@@ -160,7 +160,7 @@ class TestHTRModel:
             def advanced_user_options(self): return None
 
             def __call__(self, images, polygons):
-                return [TextRecognitionOutput(annotations=[])]
+                return [TextRecognitionOutput(annotations=[], image_path="")]
 
         output = Concrete()(images=[], polygons=[])
         assert isinstance(output, list)
