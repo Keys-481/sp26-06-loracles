@@ -110,29 +110,29 @@ function App() {
           </label>
           <div id="saveButtons">
             <button type="button" className="button" onClick={
-            async () => {
-              // Open the dialog to select an output folder
-              const result = window.electronAPI.openSavePath();
+              async () => {
+                // Open the dialog to select an output folder
+                const result = window.electronAPI.openSavePath();
 
-              result.then((resolved) => {
-                if (resolved === null) {
-                  // Folder selection cancelled, do nothing
-                } else {
-                  // Set save path
-                  setDocumentDirectory(resolved);
-                }
-              });
-            }
-          }>
-            <img src={img_folder} alt="Icon" className="icon"></img>
-            <span>Choose Output Folder</span>
-          </button>
-          <button type="button" className="button" onClick={async () => {
-            window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
-          }}>
-            <img src={img_save} alt="icon" className="icon"/>
-            <span>Save Results</span>
-          </button>
+                result.then((resolved) => {
+                  if (resolved === null) {
+                    // Folder selection cancelled, do nothing
+                  } else {
+                    // Set save path
+                    setDocumentDirectory(resolved);
+                  }
+                });
+              }
+            }>
+              <img src={img_folder} alt="Icon" className="icon"></img>
+              <span>Choose Output Folder</span>
+            </button>
+            <button type="button" className="button" onClick={async () => {
+              window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
+            }}>
+              <img src={img_save} alt="icon" className="icon"/>
+              <span>Save Results</span>
+            </button>
           </div>
           <div id='logos'>
             <AboutSDP/>
