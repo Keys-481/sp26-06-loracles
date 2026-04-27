@@ -330,7 +330,7 @@ class ConvRecNN(HTRModel):
 ```
 
 ### Installing Model Wrappers
-Model wrapper folders should be placed into `<appData>/'LTU HTR'/models/` and the application restarted.
+Model wrapper folders should be placed into `<appData>/sp26-06-loracles/models/` and the application restarted.
 
 Alternatively, model wrapper zip files can be imported using the experimental ui:  
 ![](images/experimental_model_import.png)
