@@ -9,8 +9,7 @@ function AboutSDP() {
       />
       <div>
         This application was created as a<br />
-        Boise State University<br />
-        Computer Science Senior Design Project by
+        Boise State University Computer Science Senior Design Project by
         <div>James Maloney</div>
         <div>Mason Swanson</div>
         <div>Porter Rigby</div>

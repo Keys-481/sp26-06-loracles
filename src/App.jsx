@@ -8,6 +8,7 @@ import img_file from './assets/file.png';
 import img_folder from './assets/folder.png';
 import img_settings from './assets/settings.png';
 import img_world from './assets/world.png';
+import img_save from './assets/save.png';
 import AboutSDP from './components/AboutSDP.jsx';
 import AboutLTU from './components/AboutLTU.jsx';
 
@@ -79,7 +80,6 @@ function App() {
           </div>
         </div>
         <div className="div2">
-          <p>Box 2</p>
           <p>Document Display</p>
           <img id="documentDisplay"/>
         </div>
@@ -108,7 +108,8 @@ function App() {
           <label className="label" id="outputPath">
             Output path: {documentDirectory ?? '<no output path selected>'}
           </label>
-          <button type="button" className="button" onClick={
+          <div id="saveButtons">
+            <button type="button" className="button" onClick={
             async () => {
               // Open the dialog to select an output folder
               const result = window.electronAPI.openSavePath();
@@ -129,13 +130,13 @@ function App() {
           <button type="button" className="button" onClick={async () => {
             window.electronAPI.saveResults(documentDirectory, documentFilename + '.txt', document.getElementById('outputTextBox_textarea').value);
           }}>
+            <img src={img_save} alt="icon" className="icon"/>
             <span>Save Results</span>
           </button>
-          <div id='sdpBox'>
-            <AboutSDP></AboutSDP>
           </div>
-          <div id='ltuBox'>
-            <AboutLTU></AboutLTU>
+          <div id='logos'>
+            <AboutSDP/>
+            <AboutLTU/>
           </div>
         </div>
       </div>
