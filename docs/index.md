@@ -1,5 +1,5 @@
 # sp26-06-loracles
-## LSU HTR
+## LTU HTR
 
 ## Members
   * James Maloney
@@ -7,14 +7,14 @@
   * Porter Rigby
 
 ## Abstract
-LSU HTR is a cross-platform solution for handwritten text recognition on historical document images. Inference for 
+LTU HTR is a cross-platform solution for handwritten text recognition on historical document images. Inference for 
 optical character recognition has traditionally been locked behind some level of technical know-how, requiring the 
 knowledge of utilizing different models either through pure Python code or via some form of coding notebook. This 
 gatekeeps the use of machine learning for HTR from many individuals studying the humanities, who would massively benefit 
-from access to such technology. LSU HTR attempts to provide an easy-to-use solution for handwritten text recognition of 
+from access to such technology. LTU HTR attempts to provide an easy-to-use solution for handwritten text recognition of 
 historical documents, accessible to everyone.
 
-LSU HTR can be run on Windows, macOS, (and Linux for more technical users) through Electron and a built-in Python engine. 
+LTU HTR can be run on Windows, macOS, (and Linux for more technical users) through Electron and a built-in Python engine. 
 It can be packaged for both Windows and macOS platforms, and automatically detects and enables hardware acceleration for 
 Nvidia GPUs.
 
