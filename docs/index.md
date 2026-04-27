@@ -337,7 +337,7 @@ Alternatively, model wrapper zip files can be imported using the experimental ui
 
 ### UI
 #### Main UI
-
+![](images/main_ui.png)
 
 #### Experimental UI
-
+![](images/experimental_ui.png)
