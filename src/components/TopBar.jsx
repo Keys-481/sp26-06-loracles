@@ -18,7 +18,7 @@ function TopBar({ onOpenFile, onOpenFolder, onSettings, onDownload, onRunInferen
     <AppBar position="static" elevation={0} color="inherit" sx={{ borderBottom: 1, borderColor: "divider" }}>
       <Toolbar variant="dense">
         <Typography variant="h6" sx={{ fontWeight: 700, color: "primary.main", mr: 2 }}>
-          LSU HTR
+          LTU HTR
         </Typography>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Button size="small" startIcon={<FileOpenIcon />} onClick={onOpenFile}>
