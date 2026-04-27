@@ -12,10 +12,19 @@ ipcRenderer.on('console-output', (_event, level, text) => {
 // Expose safe API to the renderer
 contextBridge.exposeInMainWorld('electronAPI', {
 
+  /**
+   * Triggers dialog:openFile
+   */
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
 
+  /**
+   * Triggers inference:InferImage
+   */
   inferFile: (imagePath) => ipcRenderer.invoke('inference:inferImage', imagePath),
 
+  /**
+   * Displays output text in outputTextBox_textarea
+   */
   displayOutputText: ipcRenderer.on('display:displayText', (event, outputText) => {
     document.getElementById('outputTextBox_textarea').value = outputText;
   }),
@@ -31,12 +40,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   //   console.log(inferenceResults);
   // }),
 
-  // Load file path for .txt file output for save button
+  /**
+   * Load file path for .txt file output for save button
+   */
   openSavePath: () => ipcRenderer.invoke('dialog:chooseSaveFolder'),
 
-  openedSaveFolder: () => ('display:chosenSaveFolder', (event, directory) => {
-    document.getElementById('outputSaveFilePath_textarea').value = directory;
-  }),
-
+  /**
+   * Triggers save:saveResults
+   */
   saveResults: (filePath, fileName, content) => ipcRenderer.invoke('save:saveResults', filePath, fileName, content)
 });

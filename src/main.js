@@ -14,8 +14,10 @@ if (started) {
   app.quit();
 }
 
-// Intercept main-process stdout/stderr and forward to DevTools so output is
-// visible when running the installed app without an attached terminal.
+/**
+ * Intercept main-process stdout/stderr and forward to DevTools so output is
+ * visible when running the installed app without an attached terminal.
+ */
 const _patch = (stream, level) => {
   const original = stream.write.bind(stream);
   stream.write = (chunk, ...args) => {
@@ -28,10 +30,17 @@ const _patch = (stream, level) => {
 _patch(process.stdout, 'log');
 _patch(process.stderr, 'warn');
 
+/**
+ * Port to use for communicating with Python over 0mq
+ */
 const INFERENCE_PORT = 5555;
 let inferenceProcess = null;
 let mainWindow = null;
 
+/**
+ * Ensures that the model directory is present and returns the path to it
+ * @returns {string} Model directory path
+ */
 function ensureModelsDir() {
   let modelsDir = path.join(app.getPath('userData'), 'models');
   fs.mkdirSync(modelsDir, {recursive: true});
@@ -50,6 +59,12 @@ async function ensurePythonSource() {
   return path.join(process.resourcesPath, 'app.asar.unpacked', 'resources', 'python');
 }
 
+/**
+ * Spawns an inference server on {@linkcode INFERENCE_PORT} so Electron can communicate
+ * with Python over 0mq
+ * @param {string} modelsDir - Path of models directory
+ * @param {String|URL|undefined} cwd - Project root on sys.path
+ */
 function spawnInferenceServer(modelsDir, cwd) {
   console.log('Spawning inference server...');
 
@@ -78,11 +93,12 @@ function spawnInferenceServer(modelsDir, cwd) {
 }
 
 /**
- * Run inference for one file
+ * Run inference for one file. Promises an {@linkcode InferenceResult} object with the
+ * text scanned from the specified filepath, once inference has been completed
  *
- * @param {string} filePath The file path on the computer
- * @param {number} port Port to use for 0mq
- * @returns
+ * @param {string} filePath - The file path on the computer
+ * @param {number} port - Port to use for 0mq
+ * @returns {Promise} promise that resolves with the {@linkcode InferenceResult} object created
  */
 async function inferFile(filePath, port=INFERENCE_PORT) {
   return new Promise(async (resolve, reject) => {
@@ -117,11 +133,16 @@ async function inferFile(filePath, port=INFERENCE_PORT) {
 }
 
 /**
- * Run inference for all files in the directory
+ * @todo UNUSED
  *
- * @param {string} filePath The file path on the computer
- * @param {number} port Port to use for 0mq
- * @returns
+ * Run inference for all files in a directory. Promises an array of
+ * {@linkcode InferenceResult} objects with the text scanned from the specified
+ * files, once inference has been completed for each file
+ *
+ * @param {string} folder - The directory path on the computer
+ * @param {number} port - Port to use for 0mq
+ * @returns {Promise} promise that resolves with the array of {@linkcode InferenceResult}
+ * objects created
  */
 async function inferDirectory(folder, port=INFERENCE_PORT) {
   return new Promise(async (resolve, reject) => {
@@ -150,6 +171,7 @@ async function inferDirectory(folder, port=INFERENCE_PORT) {
     dealer.close();
 
     let inferenceRess = {};
+    /** @todo May need to revisit this to make sure its not suboptimal */
     await Promise.all(results.map(async (r) => {
       const i = new InferenceResult(r);
       await i.init().then((inited) => {
@@ -162,6 +184,9 @@ async function inferDirectory(folder, port=INFERENCE_PORT) {
   });
 }
 
+/**
+ * Kills the inference server process
+ */
 function killInferenceServer() {
   if (inferenceProcess && !inferenceProcess.killed) {
     inferenceProcess.kill('SIGTERM');
@@ -169,6 +194,9 @@ function killInferenceServer() {
   }
 }
 
+/**
+ * Cleans the temporary file directory so JSON files don't fill up user storage
+ */
 function cleanTempDir() {
   const tempDir = path.join(app.getPath('userData'), 'temp');
   if (!fs.existsSync(tempDir)) return;
@@ -177,6 +205,9 @@ function cleanTempDir() {
   }
 }
 
+/**
+ * Creates the main window for the app
+ */
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -237,7 +268,10 @@ ipcMain.handle('dialog:openFile', async (event) => {
 });
 
 /**
- * Opens a dialog to make the user select a directory for input images
+ * @todo UNUSED and unfinished
+ *
+ * @todo Currently this opens a dialog to choose a directory, and replies to the IPC event
+ * with a call to display:displayDirectory, but that is not setup in {@link preload.js}.
  */
 ipcMain.on("dialog:openDirectory", (event) => {
   const result = dialog.showOpenDialog({
@@ -251,7 +285,15 @@ ipcMain.on("dialog:openDirectory", (event) => {
   });
 });
 
-ipcMain.handle('inference:inferImage', async (event, imagePath) => {
+/**
+ * Runs inference on the image at imagePath.
+ *
+ * @param {Electron.IpcMainInvokeEvent} _event - invoke event
+ * @param {string} imagePath - Path of the image to run inference on
+ * @returns {Promise} Promise that resolves with the lines of text found
+ * in the specified image joined by {@link EOL.EOL|platform specific linebreaks}
+ */
+ipcMain.handle('inference:inferImage', async (_event, imagePath) => {
   return new Promise(async (resolve, reject) => {
     const result = inferFile(imagePath);
 
@@ -262,6 +304,12 @@ ipcMain.handle('inference:inferImage', async (event, imagePath) => {
   });
 });
 
+/**
+ * @todo UNUSED and unfinished
+ *
+ * @todo Currently this runs {@link inferDirectory} on the image paths, and replies to the IPC event
+ * with a call to display:displayDirectoryText, but that is not setup in {@link preload.js}.
+ */
 ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
   const result = inferDirectory(imagePaths);
 
@@ -274,17 +322,25 @@ ipcMain.on('inference:inferDirectory', (event, imagePaths) => {
  * Writes the results to the specified directory
  *
  * Uses fs to write a file to the file named "filename" at directory "directory".
- * If the file does not exist, creates a new one. In any casem gets write access for the file.
+ * If the file does not exist, creates a new one. In any case, gets write access for the file.
  * Then attempts to set contents of file to "content"
  *
- * @returns Any errors
+ * @param {Electron.IpcMainInvokeEvent} event - invoke event
+ * @param {string} directory - directory to save output file to
+ * @param {string} filename - name of output file
+ * @param {string} content - contents to save to output file
+ * @returns {?NodeJS.ErrnoException} Any errors
  */
 ipcMain.handle('save:saveResults', (event, directory, filename, content) => {
   const result = fs.writeFile(path.join(directory, filename), content, {flag: 'w+'}, err => {return err;});
 });
+
 /**
- * Opens a dialog to make the user select a directory for
- * saving outputs
+ * Opens a dialog to make the user select a directory for saving outputs.
+ * Resolves with the directory chosen, or null if dialog cancelled.
+ *
+ * @returns {Promise} Promise that resolves with the directory chosen,
+ * or with null if dialog cancelled.
  */
 ipcMain.handle("dialog:chooseSaveFolder", async (event) => {
   return new Promise(async (resolve, reject) => {
@@ -303,9 +359,11 @@ ipcMain.handle("dialog:chooseSaveFolder", async (event) => {
   });
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+/**
+ * This method will be called when Electron has finished
+ * initialization and is ready to create browser windows.
+ * Some APIs can only be used after this event occurs.
+ */
 app.whenReady().then(() => {
   const modelsDir = ensureModelsDir();
   // Give the Python process a moment to bind its ZMQ socket before connecting.
@@ -336,16 +394,20 @@ app.whenReady().then(() => {
   });
 });
 
-// Kill the inference server and clean up temp files on graceful exit.
-// For unexpected crashes the stdin pipe closure handles it (see _heartbeat in inference.py).
+/**
+ * Kill the inference server and clean up temp files on graceful exit.
+ * For unexpected crashes the stdin pipe closure handles it (see _heartbeat in inference.py).
+ */
 app.on('before-quit', () => {
   killInferenceServer();
   cleanTempDir();
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+/**
+ * Quit when all windows are closed, except on macOS. There, it's common
+ * for applications and their menu bar to stay active until the user quits
+ * explicitly with Cmd + Q.
+ */
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
