@@ -16,33 +16,35 @@ function ScanControlBox({ disable, onRunInferenceButton, onPrevImgButton, onNext
   return (
     <div id="scanControlBox">
       <ScanControls/>
-      <div id="prevImgButtonBox">
-        <button
-          id="prevImgButton"
-          className="button"
-          onClick={onPrevImgButton}
-        >
-          {'Previous <<'}
-        </button>
-      </div>
-      <div id="runInferenceButtonBox">
-        <button
-          id="runInferenceButton"
-          className="button"
-          disabled={disable}
-          onClick={onRunInferenceButton}
-        >
-          Run Inference
-        </button>
-      </div>
-      <div id="nextImgButtonBox">
-        <button
-          id="nextImgButton"
-          className="button"
-          onClick={onNextImgButton}
-        >
-          {'Next >>'}
-        </button>
+      <div id="controlButtonRow">
+        <div id="prevImgButtonBox">
+          <button
+            id="prevImgButton"
+            className="button"
+            onClick={onPrevImgButton}
+          >
+            {'Previous <<'}
+          </button>
+        </div>
+        <div id="runInferenceButtonBox">
+          <button
+            id="runInferenceButton"
+            className="button"
+            disabled={disable}
+            onClick={onRunInferenceButton}
+          >
+            Run Inference
+          </button>
+        </div>
+        <div id="nextImgButtonBox">
+          <button
+            id="nextImgButton"
+            className="button"
+            onClick={onNextImgButton}
+          >
+            {'Next >>'}
+          </button>
+        </div>
       </div>
     </div>
   );

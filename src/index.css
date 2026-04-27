@@ -8,26 +8,36 @@ body {
 .parent {
   display: grid;
   gap: 0px;
-  border-style: solid;
   width: 99%;
   height: 95vh;
 }
 
+/* Initial file select flexbox */
 .div1 {
   grid-column: span 3 / span 3;
   border-color: black;
   border-style: solid;
+  padding: 2px;
 }
 
+/* Document Display */
 .div2 {
+  font-weight:bold;
+  font-style: oblique;
   grid-column: span 3 / span 3;
   grid-row: span 4 / span 4;
   grid-column-start: 1;
   grid-row-start: 2;
   border-color: black;
   border-style: solid;
+  padding: 5px;
+  align-items: center;
+  padding: 5px;
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3),
+    inset -2px -2px 5px rgba(255,255,255,0.6);
 }
 
+/* Options and Run Inference */
 .div3 {
   grid-column: span 2 / span 2;
   grid-row: span 2 / span 2;
@@ -35,8 +45,10 @@ body {
   grid-row-start: 1;
   border-color: black;
   border-style: solid;
+  padding: 2px;
 }
 
+/* Output area */
 .div4 {
   grid-column: span 2 / span 2;
   grid-row: span 3 / span 3;
@@ -44,6 +56,7 @@ body {
   grid-row-start: 3;
   border-color: black;
   border-style: solid;
+  padding: 2px;
 }
 
 .buttonRow {
@@ -67,6 +80,44 @@ body {
 }
 
 #documentDisplay {
-  max-width: 90%;
-  max-height: 70%;
+  max-width: 95%;
+  max-height: 90%;
+}
+
+#outputTextBox {
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3),
+    inset -2px -2px 5px rgba(255,255,255,0.6);
+}
+
+#outputPath {
+  padding: 8px;
+  font-weight:bold;
+  font-style: oblique;
+}
+
+#saveButtons {
+  padding-top: 8px;
+  padding-left: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+#logos {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+#outputTextBox {
+  font-weight:bold;
+  font-style: oblique;
+}
+
+#controlButtonRow {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
