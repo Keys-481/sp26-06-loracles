@@ -1,5 +1,4 @@
 import ScanControls from './ScanControls';
-import "./ScanControlBox.css";
 
 /**
  * React compoenent for the scanning controls of the UI.
