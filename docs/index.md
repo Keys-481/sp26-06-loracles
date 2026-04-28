@@ -330,9 +330,15 @@ class ConvRecNN(HTRModel):
 ```
 
 ### Installing Model Wrappers
-Model wrapper folders should be placed into `<appData>/sp26-06-loracles/models/` and the application restarted.
+Model wrapper folders should be placed into:
+- `%APPDATA%/sp26-06-loracles/models/` for Windows
+- `~/Library/Application Support/sp26-06-loracles/models/` for macOS
+- `~/.config/sp26-06-loracles/models/` for Linux
 
-Alternatively, model wrapper zip files can be imported using the experimental ui:  
+The application will need to be restarted for the new wrappers to be detected.
+
+Alternatively, model wrapper zip files can be imported using the experimental ui when selecting the settings cog in the
+top right of the application:  
 ![](images/experimental_model_import.png)
 
 ### UI
