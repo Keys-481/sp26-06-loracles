@@ -1,10 +1,11 @@
 import "./AboutButton.css";
+import sdpLogo from "../assets/sdp-logo.png";
 
 function AboutButton() {
   return (
     <div id="sdp">
       <img
-        src="src/assets/sdp-logo.png"
+        src={String(sdpLogo)}
         alt="senior design project logo"
       />
       <div>
