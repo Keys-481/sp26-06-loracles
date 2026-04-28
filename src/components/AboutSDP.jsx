@@ -1,10 +1,11 @@
 import "./AboutSDP.css";
+import sdpLogo from "../assets/sdp-logo.png";
 
 function AboutSDP() {
   return (
     <div id="sdp">
       <img
-        src="src/assets/sdp-logo.png"
+        src={String(sdpLogo)}
         alt="senior design project logo"
       />
       <div>
