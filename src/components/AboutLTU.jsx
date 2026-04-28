@@ -1,10 +1,11 @@
 import "./AboutLTU.css";
+import ltuLogo from "../assets/LTU Ice Cubes.png";
 
 function AboutLTU() {
   return (
     <div id="ltu">
       <img
-        src="src/assets/LTU Ice Cubes.png"
+        src={String(ltuLogo)}
         alt="LTU Logo"
       />
       <div>
