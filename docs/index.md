@@ -337,7 +337,7 @@ Model wrapper folders should be placed into:
 
 The application will need to be restarted for the new wrappers to be detected.
 
-Alternatively, model wrapper zip files can be imported using the experimental ui when selecting the settings cog in the
+Alternatively, model wrapper zip files can be imported using the experimental UI when selecting the settings cog in the
 top right of the application:  
 ![](images/experimental_model_import.png)
 
