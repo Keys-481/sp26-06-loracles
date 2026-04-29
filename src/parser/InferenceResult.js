@@ -82,7 +82,7 @@ class InferenceResult {
       }
 
       this.#imagePath = json["image_path"] ?? "";
-      this.#annotations = annots;
+      this.#annotations = annots.sort((a, b) => a.bounds.y1 - b.bounds.y1);
       resolve(this);
     });
   }
