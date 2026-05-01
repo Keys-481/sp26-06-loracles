@@ -9,7 +9,7 @@ function AboutButton() {
         alt="senior design project logo"
       />
       <div>
-        This website was created for a<br />
+        This application was created for a<br />
         Boise State University<br />
         Computer Science Senior Design Project by
         <div>James Maloney</div>

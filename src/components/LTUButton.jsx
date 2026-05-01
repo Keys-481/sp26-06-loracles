@@ -9,7 +9,7 @@ function LTUButton() {
         alt="Luleå Tekniska Universitet logo"
       />
       <div>
-        This website was sponsored by<br />
+        This application was sponsored by<br />
         Luleå Tekniska Universitet<br />
       </div>
     </div>
