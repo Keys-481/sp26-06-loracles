@@ -52,13 +52,18 @@ class PyManager {
   }
 
   async _installTorch() {
-    await this._run(this._uvPath, [
+    let args = [
       'pip', 'install', `torch==${TORCH_VER}`, `torchvision==${TORCHVISION_VER}`,
       '--reinstall-package', 'torch',
       '--reinstall-package', 'torchvision',
-      '--torch-backend=auto',
       '--python', this.pythonPath,
-    ]);
+    ];
+    try {
+      await this._run(this._uvPath, [...args, '--torch-backend=auto']);
+    } catch {
+      console.warn('[pymanager] torch auto-backend failed, retrying with cpu backend');
+      await this._run(this._uvPath, [...args, '--torch-backend=cpu']);
+    }
   }
 
   get _baseRequirementsPath() {
