@@ -281,7 +281,7 @@ ipcMain.on('importModel', async (event) => {
 });
 
 app.whenReady().then(() => {
-  const modelsDir = ensureModelsDir();
+  modelsDir = ensureModelsDir();
   // Give the Python process a moment to bind its ZMQ socket before connecting.
   // setTimeout(() => testInference().catch(console.error), 2000);
   createWindow();

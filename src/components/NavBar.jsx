@@ -3,6 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import LTUButton from "./LTUButton";
 import AboutButton from "./AboutButton";
 
 function NavBar({ currentIndex, total, onPrev, onNext, filename }) {
@@ -28,6 +29,7 @@ function NavBar({ currentIndex, total, onPrev, onNext, filename }) {
       ) : (
         <Box sx={{ flex: 1 }} />
       )}
+      <LTUButton />
       <AboutButton />
     </Box>
   );
